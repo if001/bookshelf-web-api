@@ -116,6 +116,25 @@ paths:
           schema:
             $ref: "#/definitions/Error"
   /books/{id}/description:
+    get:
+      tags:
+        - "book description"
+      summary: "本のデスクリプション取得"
+      parameters:
+        - name: id
+          in: "path"
+          required: true
+          type: "integer"
+          format: "int64"
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/BookDescriptionResponse'
+        default:
+          description: generic error response
+          schema:
+            $ref: "#/definitions/Error"
     post:
       tags:
         - "book description"
@@ -135,11 +154,36 @@ paths:
         '200':
           description: Success
           schema:
-            $ref: '#/definitions/BookResponse'
+            $ref: '#/definitions/BookDescriptionResponse'
         default:
           description: generic error response
           schema:
             $ref: "#/definitions/Error"
+    put:
+      tags:
+        - "book description"
+      summary: "本のデスクリプションを編集"
+      parameters:
+        - name: id
+          in: "path"
+          required: true
+          type: "integer"
+          format: "int64"
+        - name: body
+          in: "body"
+          required: true
+          schema:
+            $ref: '#/definitions/BookDescriptionRequest'
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/BookDescriptionResponse'
+        default:
+          description: generic error response
+          schema:
+            $ref: "#/definitions/Error"            
+            
 definitions:
   BookResponse:
     type: object
@@ -178,7 +222,7 @@ definitions:
         type: string
         example: "ok"
       contents:
-        $ref: "#/definitions/BookDescriptionResponse"
+        $ref: "#/definitions/BookDescription"
   BookDescriptionsResponse:
     type: object
     properties:
