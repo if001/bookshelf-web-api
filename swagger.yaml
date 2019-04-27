@@ -1,0 +1,75 @@
+swagger: "2.0"
+info:
+  version: "1.0.0"
+  title: "bookshelf-web-api"
+  description: "for bookshelf-web-api"
+host: "localhost:8000"
+basePath: "/api"
+schemes:
+  - "http"
+consumes:
+  - "application/json"
+produces:
+  - "application/json"
+paths:
+  /book/{id}:
+    get:
+      operationId: bookId
+      parameters:
+        - name: id
+          in: query
+          type: number
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/Book'
+        default:
+          description: generic error response
+          schema:
+            $ref: "#/definitions/error"
+definitions:
+  Book:
+    type: object
+    properties:
+      id:
+        type: number
+        format: uint
+      title:
+        type: string
+      readStatus:
+        type: number
+        format: uint
+      categorys:
+        type: array
+        items:
+          type: number
+      charactors:
+        type: array
+        items:
+          type: number
+      prevBook:
+        type: number
+      nextBook:
+        type: number
+      description:
+        type: string
+      createdAt:
+        type: "string"
+        format: "date-time"
+        description: "nullable"
+      updatedAt:
+        type: "string"
+        format: "date-time"
+        description: "nullable"
+      
+  error:
+    type: object
+    required:
+      - message
+    properties:
+      code:
+        type: integer
+        format: int64
+      message:
+        type: string
