@@ -14,6 +14,8 @@ produces:
 tags:
 - name: "books"
   description: "本"
+- name: "book description"
+  description: "本のメモ"
 - name: "accounts"
   description: "アカウント"
 paths:
@@ -110,10 +112,15 @@ paths:
             $ref: "#/definitions/error"
   /books/{id}/description:
     post:
-       tags:
-        - "description"
+      tags:
+        - "book description"
       summary: "本のデスクリプション登録"
       parameters:
+        - name: id
+          in: "path"
+          required: true
+          type: "integer"
+          format: "int64"
         - name: body
           in: "body"
           required: true
