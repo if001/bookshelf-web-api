@@ -36,16 +36,16 @@ paths:
         - "books"
       summary: "本の新規登録"
       parameters:
-        - name: id
-          in: "path"
+        - name: body
+          in: "body"
           required: true
-          type: "integer"
-          format: "int64"
+          schema:
+            $ref: '#/definitions/BooksCreateRequest'
       responses:
         '200':
           description: Success
           schema:
-            $ref: '#/definitions/Book'
+            $ref: '#/definitions/BookResponse'
         default:
           description: generic error response
           schema:
@@ -65,7 +65,7 @@ paths:
         '200':
           description: Success
           schema:
-            $ref: '#/definitions/Book'
+            $ref: '#/definitions/BookResponse'
         default:
           description: generic error response
           schema:
