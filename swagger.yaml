@@ -110,7 +110,7 @@ paths:
         '200':
           description: Success
           schema:
-            $ref: '#/definitions/Book'
+            $ref: '#/definitions/OkResponse'
         default:
           description: generic error response
           schema:
@@ -241,6 +241,16 @@ definitions:
     properties:
       description:
         type: string
+  OkResponse:
+    type: object
+    properties:
+      resultCode:
+        type: number
+        format: uint
+        example: 1
+      message:
+        type: string
+        example: "ok"
   error:
     type: object
     required:
