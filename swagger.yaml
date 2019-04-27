@@ -190,7 +190,7 @@ definitions:
     properties:
       resultCode:        
         type: number
-        format: uint
+        format: int32
         example: 1
       message:
         type: string
@@ -202,7 +202,7 @@ definitions:
     properties:
       resultCode:
         type: number
-        format: uint
+        format: int32
         example: 1
       message:
         type: string
@@ -216,7 +216,7 @@ definitions:
     properties:
       resultCode:
         type: number
-        format: uint
+        format: int32
         example: 1
       message:
         type: string
@@ -228,7 +228,7 @@ definitions:
     properties:
       resultCode:
         type: number
-        format: uint
+        format: int32
         example: 1
       message:
         type: string
@@ -242,22 +242,24 @@ definitions:
     properties:
       id:
         type: number
-        format: uint
+        format: int64
       title:
         type: string
       author:
         type: string
       readStatus:
         type: number
-        format: uint
+        format: int32
       categorys:
         type: array
         items:
           type: number
       prevBook:
         type: number
+        format: int64
       nextBook:
         type: number
+        format: int64
       description:
         type: string
       createdAt:
@@ -288,8 +290,10 @@ definitions:
           type: number
       prevBook:
         type: number
+        format: int64
       nextBook:
         type: number
+        format: int64
       createdAt:
         type: string
         format: date-time
@@ -308,8 +312,12 @@ definitions:
   BookDescription:
     type: object
     properties:
+      id:
+        type: number
+        format: int64
       bookId:
         type: number
+        format: int64
       description:
         type: string
       createdAt:
@@ -330,7 +338,7 @@ definitions:
     properties:
       resultCode:
         type: number
-        format: uint
+        format: int32
         example: 1
       message:
         type: string
