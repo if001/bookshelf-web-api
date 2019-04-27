@@ -254,10 +254,10 @@ definitions:
         type: array
         items:
           type: number
-      prevBook:
+      prevBookId:
         type: number
         format: int64
-      nextBook:
+      nextBookId:
         type: number
         format: int64
       description:
@@ -288,10 +288,10 @@ definitions:
         type: array
         items:
           type: number
-      prevBook:
+      prevBookId:
         type: number
         format: int64
-      nextBook:
+      nextBookId:
         type: number
         format: int64
       createdAt:
