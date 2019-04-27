@@ -32,7 +32,7 @@ paths:
         default:
           description: generic error response
           schema:
-            $ref: "#/definitions/error"
+            $ref: "#/definitions/Error"
     post:
       tags:
         - "books"
@@ -51,7 +51,7 @@ paths:
         default:
           description: generic error response
           schema:
-            $ref: "#/definitions/error"
+            $ref: "#/definitions/Error"
   /books/{id}:
     get:
       tags:
@@ -71,7 +71,7 @@ paths:
         default:
           description: generic error response
           schema:
-            $ref: "#/definitions/error"
+            $ref: "#/definitions/Error"
     put:
       tags:
         - "books"
@@ -95,7 +95,7 @@ paths:
         default:
           description: generic error response
           schema:
-            $ref: "#/definitions/error"
+            $ref: "#/definitions/Error"
     delete:
       tags:
         - "books"
@@ -114,7 +114,7 @@ paths:
         default:
           description: generic error response
           schema:
-            $ref: "#/definitions/error"
+            $ref: "#/definitions/Error"
   /books/{id}/description:
     post:
       tags:
@@ -139,7 +139,7 @@ paths:
         default:
           description: generic error response
           schema:
-            $ref: "#/definitions/error"
+            $ref: "#/definitions/Error"
 definitions:
   BookResponse:
     type: object
@@ -251,7 +251,7 @@ definitions:
       message:
         type: string
         example: "ok"
-  error:
+  Error:
     type: object
     required:
       - message
