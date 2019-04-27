@@ -26,7 +26,7 @@ paths:
         '200':
           description: Success
           schema:
-            $ref: '#/definitions/Books'
+            $ref: '#/definitions/BooksResponse'
         default:
           description: generic error response
           schema:
@@ -108,8 +108,33 @@ paths:
           description: generic error response
           schema:
             $ref: "#/definitions/error"
-            
 definitions:
+  BookResponse:
+    type: object
+    properties:
+      resultCode:        
+        type: number
+        format: uint
+        example: 1
+      message:
+        type: string
+        example: "ok"
+      contents:
+        $ref: "#/definitions/Book"
+  BooksResponse:
+    type: object
+    properties:
+      resultCode:
+        type: number
+        format: uint
+        example: 1
+      message:
+        type: string
+        example: "ok"
+      contents:
+        type: array
+        items:
+          $ref: "#/definitions/Books"
   Book:
     type: object
     properties:
@@ -117,6 +142,8 @@ definitions:
         type: number
         format: uint
       title:
+        type: string
+      author:
         type: string
       readStatus:
         type: number
@@ -136,20 +163,49 @@ definitions:
       description:
         type: string
       createdAt:
-        type: "string"
-        format: "date-time"
+        type: string
+        format: date-time
         description: "nullable"
       updatedAt:
-        type: "string"
-        format: "date-time"
+        type: string
+        format: date-time
         description: "nullable"
   Books:
-    type: "object"
+    type: object
     properties:
       content:
-        type: "array"
+        type: array
         items:
           $ref: "#/definitions/Book"
+  BooksCreateRequest:
+    type: object
+    properties:
+      title:
+        type: string
+      author:
+        type: string
+      categorys:
+        type: array
+        items:
+          type: number
+      charactors:
+        type: array
+        items:
+          type: number
+      prevBook:
+        type: number
+      nextBook:
+        type: number
+      description:
+        type: string
+      createdAt:
+        type: string
+        format: date-time
+        description: "nullable"
+      updatedAt:
+        type: string
+        format: date-time
+        description: "nullable"    
   error:
     type: object
     required:
