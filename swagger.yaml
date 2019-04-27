@@ -254,10 +254,6 @@ definitions:
         type: array
         items:
           type: number
-      charactors:
-        type: array
-        items:
-          type: number
       prevBook:
         type: number
       nextBook:
@@ -287,10 +283,6 @@ definitions:
       author:
         type: string
       categorys:
-        type: array
-        items:
-          type: number
-      charactors:
         type: array
         items:
           type: number
