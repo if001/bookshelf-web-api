@@ -108,6 +108,26 @@ paths:
           description: generic error response
           schema:
             $ref: "#/definitions/error"
+  /books/{id}/description:
+    post:
+       tags:
+        - "description"
+      summary: "本のデスクリプション登録"
+      parameters:
+        - name: body
+          in: "body"
+          required: true
+          schema:
+            $ref: '#/definitions/BookdescriptionRequest'
+      responses:
+        '200':
+          description: Success
+          schema:
+            $ref: '#/definitions/BookResponse'
+        default:
+          description: generic error response
+          schema:
+            $ref: "#/definitions/error"
 definitions:
   BookResponse:
     type: object
@@ -196,8 +216,6 @@ definitions:
         type: number
       nextBook:
         type: number
-      description:
-        type: string
       createdAt:
         type: string
         format: date-time
@@ -205,7 +223,12 @@ definitions:
       updatedAt:
         type: string
         format: date-time
-        description: "nullable"    
+        description: "nullable"
+  BookdescriptionRequest:
+    type: object
+    properties:
+      description:
+        type: string
   error:
     type: object
     required:
