@@ -42,7 +42,7 @@ paths:
           in: "body"
           required: true
           schema:
-            $ref: '#/definitions/BooksCreateRequest'
+            $ref: '#/definitions/BookRequest'
       responses:
         '200':
           description: Success
@@ -82,6 +82,11 @@ paths:
           required: true
           type: "integer"
           format: "int64"
+        - name: body
+          in: "body"
+          required: true
+          schema:
+            $ref: '#/definitions/BookRequest'
       responses:
         '200':
           description: Success
@@ -204,7 +209,7 @@ definitions:
         type: array
         items:
           $ref: "#/definitions/Book"
-  BooksCreateRequest:
+  BookRequest:
     type: object
     properties:
       title:
