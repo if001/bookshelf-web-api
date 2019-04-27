@@ -49,7 +49,7 @@ paths:
         default:
           description: generic error response
           schema:
-            $ref: "#/definitions/error"          
+            $ref: "#/definitions/error"
   /books/{id}:
     get:
       tags:
