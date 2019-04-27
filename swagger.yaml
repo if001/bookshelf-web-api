@@ -130,7 +130,7 @@ paths:
           in: "body"
           required: true
           schema:
-            $ref: '#/definitions/BookdescriptionRequest'
+            $ref: '#/definitions/BookDescriptionRequest'
       responses:
         '200':
           description: Success
@@ -167,6 +167,32 @@ definitions:
         type: array
         items:
           $ref: "#/definitions/Books"
+  BookDescriptionResponse:
+    type: object
+    properties:
+      resultCode:
+        type: number
+        format: uint
+        example: 1
+      message:
+        type: string
+        example: "ok"
+      contents:
+        $ref: "#/definitions/BookDescriptionResponse"
+  BookDescriptionsResponse:
+    type: object
+    properties:
+      resultCode:
+        type: number
+        format: uint
+        example: 1
+      message:
+        type: string
+        example: "ok"
+      contents:
+        type: array
+        items:
+          $ref: "#/definitions/BookDescriptionsResponse"
   Book:
     type: object
     properties:
@@ -236,7 +262,29 @@ definitions:
         type: string
         format: date-time
         description: "nullable"
-  BookdescriptionRequest:
+  BookDescriptions:
+    type: object
+    properties:
+      content:
+        type: array
+        items:
+          $ref: "#/definitions/BookDescription"
+  BookDescription:
+    type: object
+    properties:
+      bookId:
+        type: number
+      description:
+        type: string
+      createdAt:
+        type: string
+        format: date-time
+        description: "nullable"
+      updatedAt:
+        type: string
+        format: date-time
+        description: "nullable"  
+  BookDescriptionRequest:
     type: object
     properties:
       description:
