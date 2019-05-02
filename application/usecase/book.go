@@ -6,7 +6,7 @@ import (
 )
 
 type BookUseCase interface {
-	BookUseCase() (*model.Book, error)
+	BookListUseCase() (*[]model.Book, error)
 }
 
 type bookUseCase struct {
@@ -19,7 +19,9 @@ func NewBookUseCase(cr repository.BookRepository) BookUseCase {
 	}
 }
 
-func (u *bookUseCase) BookUseCase() (*model.Book, error) {
-	cate, err := u.BookRepo.List()
+func (u *bookUseCase) BookListUseCase() (*[]model.Book, error) {
+	books, err := u.BookRepo.List()
+	return books, err
+}
 	return cate, err
 }

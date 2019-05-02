@@ -21,10 +21,15 @@ func NewBookHandler(b usecase.BookUseCase) BookHandler {
 }
 
 func (b *bookHandler) BookList(w http.ResponseWriter, r *http.Request) {
-	book, err := b.BookUseCase.BookUseCase()
+	books, err := b.BookUseCase.BookListUseCase()
 	if err != nil {
 		ErrorHandler(err, w ,r)
 	}
+	err = json.NewEncoder(w).Encode(Response{resultCode:200, Content:books})
+	if err != nil {
+		ErrorHandler(err, w ,r)
+	}
+}
 	err = json.NewEncoder(w).Encode(Response{resultCode:200, Content:book})
 	if err != nil {
 		ErrorHandler(err, w ,r)

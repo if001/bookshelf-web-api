@@ -16,8 +16,11 @@ func NewBookRepository(db *gorm.DB) repository.BookRepository {
 }
 
 var book model.Book
+var books []model.Book
 
-func (c *bookRepository) List() (*model.Book, service.RecodeNotFoundError) {
-	var err  = c.DB.Find(&book).Error
+func (c *bookRepository) List() (*[]model.Book, service.RecodeNotFoundError) {
+	var err  = c.DB.Find(&books).Error
+	return &books, err
+}
 	return &book, err
 }

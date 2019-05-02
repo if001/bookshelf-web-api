@@ -6,7 +6,7 @@ import (
 )
 
 type BookRepository interface {
-	List() (*model.Book, service.RecodeNotFoundError)
+	List() (*[]model.Book, service.RecodeNotFoundError)
 }
 
 
