@@ -11,8 +11,8 @@ func Route(h handler.ApiHandler) http.Handler {
 
 	router := http.NewServeMux()
 	//router.HandleFunc("/", middlewares.Then(handler.Index))
-	router.HandleFunc("/huga", h.Fuga)
-	router.HandleFunc("/hoge", h.Hoge)
-
+	router.HandleFunc("/books", h.BookList)
+	router.HandleFunc("/categories", h.CategoryList)
+	
 	return  router
 }

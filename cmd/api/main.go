@@ -12,13 +12,18 @@ import (
 )
 
 func main() {
-	var addr =  ":8080"
+	var addr =  ":8181"
 
 	db := mysql.GetDBConn()
 	cr := infrastructure.NewCategoryRepository(db)
+	br := infrastructure.NewBookRepository(db)
+
 	categoryUseCase := usecase.NewCategoryUseCase(cr)
+	bookUseCase := usecase.NewBookUseCase(br)
+
 	uh := handler.NewCategoryHandler(categoryUseCase)
-	ah := handler.NewApiHandler(uh)
+	bh := handler.NewBookHandler(bookUseCase)
+	ah := handler.NewApiHandler(uh,bh)
 
 	router := router.Route(ah)
 

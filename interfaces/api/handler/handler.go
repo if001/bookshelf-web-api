@@ -2,12 +2,14 @@ package handler
 
 type ApiHandler interface {
 	CategoryHandler
+	BookHandler
 }
 
 type apiHandler struct {
 	CategoryHandler
+	BookHandler
 }
 
-func NewApiHandler(uh CategoryHandler) ApiHandler {
-	return &apiHandler{uh}
+func NewApiHandler(uh CategoryHandler, bh BookHandler) ApiHandler {
+	return &apiHandler{uh, bh}
 }
