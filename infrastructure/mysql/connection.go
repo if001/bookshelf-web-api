@@ -1,18 +1,12 @@
 package mysql
 
 import (
-	"fmt"
 	"bookshelf-web-api/config"
+	"fmt"
 	"github.com/jinzhu/gorm"
 	_ "github.com/jinzhu/gorm/dialects/mysql"
-	"bookshelf-web-api/domain/model"
 )
-type Result struct {
-	model.BaseModel
-	Name string
-}
-var cate model.Category
-var result Result
+
 
 func GetDBConn() *gorm.DB {
 	dbconf := fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=utf8&parseTime=True&loc=Local",
@@ -26,5 +20,6 @@ func GetDBConn() *gorm.DB {
 		panic(err)
 	}
 	db.LogMode(true)
+	// defer db.Close()
 	return db
 }
