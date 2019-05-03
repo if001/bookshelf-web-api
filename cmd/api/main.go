@@ -15,6 +15,7 @@ func main() {
 	var addr =  ":8181"
 
 	db := mysql.GetDBConn()
+
 	cr := infrastructure.NewCategoryRepository(db)
 	br := infrastructure.NewBookRepository(db)
 
@@ -23,13 +24,14 @@ func main() {
 
 	uh := handler.NewCategoryHandler(categoryUseCase)
 	bh := handler.NewBookHandler(bookUseCase)
-	ah := handler.NewApiHandler(uh,bh)
 
-	router := router.Route(ah)
+	ah := handler.NewApiHandler(uh,bh)
+	
+	r := router.Route(ah)
 
 	fmt.Printf("[START] server. port: %s\n", addr)
 
-	if err := http.ListenAndServe(addr, handler.Log(router)); err != nil {
+	if err := http.ListenAndServe(addr, handler.Log(r)); err != nil {
 		panic(fmt.Errorf("[FAILED] start sever. err: %v", err))
 	}
 }
