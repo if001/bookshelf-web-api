@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"bookshelf-web-api/application/usecase"
 	"encoding/json"
@@ -8,13 +9,12 @@ import (
 
 type Response struct {
 	resultCode uint
-	Message string
+	Content interface{}
 }
 
 
 type CategoryHandler interface {
-	Hoge(w http.ResponseWriter, r *http.Request)
-	Fuga(w http.ResponseWriter, r *http.Request)
+	CategoryList(w http.ResponseWriter, r *http.Request,_ httprouter.Params)
 }
 
 type categoryHandler struct {
@@ -27,17 +27,13 @@ func NewCategoryHandler(c usecase.CategoryUseCase) CategoryHandler {
 	}
 }
 
-func (u *categoryHandler) Hoge(w http.ResponseWriter, r *http.Request) {
+func (u *categoryHandler) CategoryList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	cate, err := u.CategoryUseCase.CategoryUseCase()
 	if err != nil {
 		ErrorHandler(err, w, r)
 	}
-	err = json.NewEncoder(w).Encode(cate)
+	err = json.NewEncoder(w).Encode(Response{resultCode:200, Content:cate})
 	if err != nil {
 		ErrorHandler(err, w, r)
 	}
-}
-
-func (u *categoryHandler) Fuga(w http.ResponseWriter, r *http.Request) {
-	w.Write([]byte("huga"))
 }
