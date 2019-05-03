@@ -20,7 +20,9 @@ var books []model.Book
 
 func (c *bookRepository) List() (*[]model.Book, service.RecodeNotFoundError) {
 	var err  = c.DB.Find(&books).Error
+func (c *bookRepository) Find(id int64) (*[]model.Book, service.RecodeNotFoundError) {
+	err := c.DB.Where("id = ?",id).Find(&books).Error
 	return &books, err
 }
-	return &book, err
+
 }

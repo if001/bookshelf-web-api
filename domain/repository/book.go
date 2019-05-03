@@ -7,6 +7,7 @@ import (
 
 type BookRepository interface {
 	List() (*[]model.Book, service.RecodeNotFoundError)
+	Find(id int64) (*[]model.Book, service.RecodeNotFoundError)
 }
 
 
