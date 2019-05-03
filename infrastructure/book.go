@@ -28,4 +28,8 @@ func (c *bookRepository) Find(id int64) (*[]model.Book, service.RecodeNotFoundEr
 	return &books, err
 }
 
+var descriptions []model.Description
+func (c *bookRepository) Description(id int64) (*[]model.Description, service.RecodeNotFoundError) {
+	err := c.DB.Where("book_id = ?", id).Find(&descriptions).Error
+	return &descriptions, err
 }

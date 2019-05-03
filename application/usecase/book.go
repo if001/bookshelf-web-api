@@ -9,6 +9,7 @@ import (
 type BookUseCase interface {
 	BookListUseCase() (*[]model.Book, service.RecodeNotFoundError)
 	BookFindUseCase(id int64) (*[]model.Book, service.RecodeNotFoundError)
+	DescriptionUseCase(id int64) (*[]model.Description, service.RecodeNotFoundError)
 }
 
 type bookUseCase struct {
@@ -29,5 +30,7 @@ func (u *bookUseCase) BookFindUseCase(id int64) (*[]model.Book, service.RecodeNo
 	book, err := u.BookRepo.Find(id)
 	return book, service.RecodeNotFoundError(err)
 }
-	return cate, err
+func (u *bookUseCase) DescriptionUseCase(id int64) (*[]model.Description, service.RecodeNotFoundError) {
+	book, err := u.BookRepo.Description(id)
+	return book, service.RecodeNotFoundError(err)
 }

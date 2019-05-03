@@ -16,5 +16,6 @@ func Route(h handler.ApiHandler) http.Handler {
 	router.GET("/books", h.BookList)
 	router.GET("/categories", h.CategoryList)
 	router.GET("/book/:book", h.FindBook)
+	router.GET("/book/:book/description", h.FindDescription)
 	return  router
 }
