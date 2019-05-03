@@ -7,30 +7,33 @@ import (
 	"bookshelf-web-api/domain/service"
 )
 
-func BadRequestHandler(w http.ResponseWriter, r *http.Request) {
+func BadRequestHandler(err interface{}, w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, http.StatusText(http.StatusBadRequest))
 	log.Println(http.StatusText(http.StatusBadGateway), r)
+	log.Println(err)
 }
-func InternalServerErrorHandler(w http.ResponseWriter, r *http.Request) {
+func InternalServerErrorHandler(err interface{}, w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, http.StatusText(http.StatusInternalServerError))
 	log.Println(http.StatusText(http.StatusInternalServerError), r)
+	log.Println(err)
 }
 
-func RecodeNotFoundErrorHandler(w http.ResponseWriter, r *http.Request) {
+func RecodeNotFoundErrorHandler(err interface{}, w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, http.StatusText(http.StatusNotFound))
 	log.Println(http.StatusText(http.StatusNotFound), r)
+	log.Println(err)
 }
 
 func ErrorHandler(err interface{},w http.ResponseWriter, r *http.Request) {
 	// TODO 型で分岐じゃなくてinterfaceで分岐に変える
 	switch err.(type) {
 	case service.BadRequest:
-		BadRequestHandler(w, r)
+		BadRequestHandler(err, w, r)
 	case service.InternalServerError:
-		InternalServerErrorHandler(w, r)
+		InternalServerErrorHandler(err, w, r)
 	case service.RecodeNotFoundError:
-		RecodeNotFoundErrorHandler(w, r)
+		RecodeNotFoundErrorHandler(err, w, r)
 	default:
-		InternalServerErrorHandler(w, r)
+		InternalServerErrorHandler(err, w, r)
 	}
 }
