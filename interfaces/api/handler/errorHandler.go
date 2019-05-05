@@ -8,16 +8,16 @@ import (
 
 func BadRequestHandler(err interface{}, w http.ResponseWriter, r *http.Request) {
 	http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-	log.Println(http.StatusText(http.StatusBadGateway), r)
+	log.Println(http.StatusText(http.StatusBadGateway), err, r)
 }
 func InternalServerErrorHandler(err interface{}, w http.ResponseWriter, r *http.Request) {
 	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-	log.Println(http.StatusText(http.StatusInternalServerError), r)
+	log.Println(http.StatusText(http.StatusInternalServerError), err, r)
 }
 
 func RecodeNotFoundErrorHandler(err interface{}, w http.ResponseWriter, r *http.Request) {
 	http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-	log.Println(http.StatusText(http.StatusNotFound), r)
+	log.Println(http.StatusText(http.StatusNotFound), err, r)
 }
 
 func ErrorHandler(err interface{},w http.ResponseWriter, r *http.Request) {
