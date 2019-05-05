@@ -1,27 +1,23 @@
 package handler
 
 import (
-	"net/http"
-	"fmt"
-	"log"
 	"bookshelf-web-api/domain/service"
+	"log"
+	"net/http"
 )
 
 func BadRequestHandler(err interface{}, w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, http.StatusText(http.StatusBadRequest))
+	http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
 	log.Println(http.StatusText(http.StatusBadGateway), r)
-	log.Println(err)
 }
 func InternalServerErrorHandler(err interface{}, w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, http.StatusText(http.StatusInternalServerError))
+	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 	log.Println(http.StatusText(http.StatusInternalServerError), r)
-	log.Println(err)
 }
 
 func RecodeNotFoundErrorHandler(err interface{}, w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, http.StatusText(http.StatusNotFound))
+	http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
 	log.Println(http.StatusText(http.StatusNotFound), r)
-	log.Println(err)
 }
 
 func ErrorHandler(err interface{},w http.ResponseWriter, r *http.Request) {
