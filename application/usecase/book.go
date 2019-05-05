@@ -8,7 +8,7 @@ import (
 
 type BookUseCase interface {
 	BookListUseCase(account model.Account) (*[]model.Book, service.RecodeNotFoundError)
-	BookFindUseCase(id int64) (*[]model.Book, service.RecodeNotFoundError)
+	BookFindUseCase(id int64, account model.Account) (*[]model.Book, service.RecodeNotFoundError)
 	DescriptionUseCase(id int64) (*[]model.Description, service.RecodeNotFoundError)
 }
 
@@ -26,8 +26,8 @@ func (u *bookUseCase) BookListUseCase(account model.Account) (*[]model.Book, ser
 	books, err := u.BookRepo.List(account)
 	return books, service.RecodeNotFoundError(err)
 }
-func (u *bookUseCase) BookFindUseCase(id int64) (*[]model.Book, service.RecodeNotFoundError) {
-	book, err := u.BookRepo.Find(id)
+func (u *bookUseCase) BookFindUseCase(id int64, account model.Account) (*[]model.Book, service.RecodeNotFoundError) {
+	book, err := u.BookRepo.Find(id, account)
 	return book, service.RecodeNotFoundError(err)
 }
 func (u *bookUseCase) DescriptionUseCase(id int64) (*[]model.Description, service.RecodeNotFoundError) {

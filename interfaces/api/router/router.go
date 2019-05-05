@@ -15,8 +15,7 @@ func Route(h handler.ApiHandler) http.Handler {
 
 	//router.HandleFunc("/", middlewares.Then(handler.Index))
 	router.GET("/books", middlewares.Then(h.BookList))
-	router.GET("/categories", h.CategoryList)
-	router.GET("/book/:book", h.FindBook)
-	router.GET("/book/:book/description", h.FindDescription)
+	router.GET("/book/:book", middlewares.Then(h.FindBook))
+	router.GET("/book/:book/description", middlewares.Then(h.FindDescription))
 	return  router
 }

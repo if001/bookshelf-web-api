@@ -41,10 +41,11 @@ func (b *bookHandler) BookList(w http.ResponseWriter, r *http.Request, _ httprou
 
 func (b *bookHandler) FindBook(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	bookId,err := strconv.ParseInt(ps.ByName("book"),10,64)
+	account := r.Context().Value("account").(*model.Account)
 	if err != nil {
 		ErrorHandler(service.InternalServerError(err), w ,r)
 	} else {
-		book, err := b.BookUseCase.BookFindUseCase(bookId)
+		book, err := b.BookUseCase.BookFindUseCase(bookId, *account)
 		if err != nil {
 			ErrorHandler(err, w ,r)
 		} else {

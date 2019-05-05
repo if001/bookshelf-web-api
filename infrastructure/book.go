@@ -39,8 +39,8 @@ func (c *bookRepository) List(account model.Account) (*[]model.Book, service.Rec
 	return &books, err
 }
 
-func (c *bookRepository) Find(id int64) (*[]model.Book, service.RecodeNotFoundError) {
-	err := c.DB.Where("id = ?",id).Find(&books).Error
+func (c *bookRepository) Find(id int64, account model.Account) (*[]model.Book, service.RecodeNotFoundError) {
+	err := c.DB.Where("account_id = ?", account.ID).Where("id = ?",id).Find(&books).Error
 	return &books, err
 }
 
