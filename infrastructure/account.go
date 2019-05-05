@@ -28,7 +28,7 @@ func (c *accountRepository) Get(token string) (*model.Account, error) {
 		err = c.DB.Where("token = ?", token).Find(&authToken).Error
 		if err == nil {
 			if authToken.ExpireTime.Before(time.Now()) {
-				authToken.ExpireTime = time.Now()
+				authToken.ExpireTime = time.Now().AddDate(0,3,0) // 3ヶ月伸ばす
 				err = c.DB.Save(&authToken).Error
 			} else {
 				err = errors.New("expire time")
