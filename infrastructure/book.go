@@ -15,12 +15,9 @@ func NewBookRepository(db *gorm.DB) repository.BookRepository {
 	return &bookRepository{ DB : db }
 }
 
-var book model.Book
 var books []model.Book
-var bookCategories []model.BookCategory
 var categories []model.Category
 var descriptions []model.Description
-var author model.Author
 
 func (c *bookRepository) List() (*[]model.Book, service.RecodeNotFoundError) {
 	accountId := 1
