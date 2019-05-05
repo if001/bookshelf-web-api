@@ -4,9 +4,9 @@ import "time"
 
 type Book struct {
 	BaseModel
-	AccountID int64
+	AccountID   int64
 	Title       string `gorm:"type:varchar(40);"`
-	Author      string `gorm:"type:varchar(30);"`
+	AuthorId    int64
 	StartAt     time.Time
 	EndAt       time.Time
 	PublishedAt time.Time

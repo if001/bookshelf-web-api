@@ -7,6 +7,6 @@ type Description struct {
 }
 
 func (Description) TableName() string {
-	return "books_description"
+	return "description"
 }
 
