@@ -19,7 +19,7 @@ var account model.Account
 
 func (c *accountRepository) Get(token string) (*model.Account, service.RecodeNotFoundError) {
 	err := c.DB.Joins("JOIN auth_token ON auth_token.account_id = accounts.id").
-		Where("token = ?",token).Find(&account).
+		Where("token = ?",token).
 		Find(&account).
 		Error
 	return &account, err
