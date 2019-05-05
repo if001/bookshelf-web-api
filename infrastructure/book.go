@@ -19,7 +19,15 @@ var book model.Book
 var books []model.Book
 
 func (c *bookRepository) List() (*[]model.Book, service.RecodeNotFoundError) {
-	err := c.DB.Find(&books).Error
+	accountId := 1
+	err := c.DB.Where("account_id = ?", accountId).Find(&books).Error
+	for i := range books {
+		if books[i].AuthorID != 0 {
+			err = c.DB.Model(books[i]).Related(&books[i].Author,"Author").Error
+		} else {
+			books[i].Author = model.Author{}
+		}
+	}
 	return &books, err
 }
 
