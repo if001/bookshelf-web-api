@@ -17,6 +17,10 @@ func NewBookRepository(db *gorm.DB) repository.BookRepository {
 
 var book model.Book
 var books []model.Book
+var bookCategories []model.BookCategory
+var categories []model.Category
+var descriptions []model.Description
+var author model.Author
 
 func (c *bookRepository) List() (*[]model.Book, service.RecodeNotFoundError) {
 	accountId := 1
@@ -27,6 +31,14 @@ func (c *bookRepository) List() (*[]model.Book, service.RecodeNotFoundError) {
 		} else {
 			books[i].Author = model.Author{}
 		}
+		err = c.DB.Joins("JOIN books_categories ON books_categories.category_id = categories.id").
+			Where("book_id = ?", books[i].ID).
+			Find(&categories).
+			Error
+		books[i].Categories = categories
+
+		err = c.DB.Where("book_id = ?",books[i].ID).Find(&descriptions).Error
+		books[i].Description = descriptions
 	}
 	return &books, err
 }
@@ -36,7 +48,6 @@ func (c *bookRepository) Find(id int64) (*[]model.Book, service.RecodeNotFoundEr
 	return &books, err
 }
 
-var descriptions []model.Description
 func (c *bookRepository) Description(id int64) (*[]model.Description, service.RecodeNotFoundError) {
 	err := c.DB.Where("book_id = ?", id).Find(&descriptions).Error
 	return &descriptions, err

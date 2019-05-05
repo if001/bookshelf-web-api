@@ -13,6 +13,8 @@ type Book struct {
 	NextBookID  int64
 	PrevBookID  int64
 	Author      Author `gorm:"foreignkey:AuthorID"`
+	Categories  []Category
+	Description []Description
 }
 
 func (Book) TableName() string {
