@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/julienschmidt/httprouter"
+	"log"
 	"net/http"
 )
 
@@ -34,6 +35,7 @@ func (a *accountHandler) AuthMiddleware(next httprouter.Handle) httprouter.Handl
 			account, err := a.AccountUseCase.AccountGetUseCase(token)
 			if err != nil {
 				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+				log.Println(err)
 			} else {
 				ctx := context.WithValue(r.Context(),"account",account)
 				r = r.WithContext(ctx)
