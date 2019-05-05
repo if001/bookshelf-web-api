@@ -18,16 +18,20 @@ func main() {
 
 	cr := infrastructure.NewCategoryRepository(db)
 	br := infrastructure.NewBookRepository(db)
+	ar := infrastructure.NewAccountRepository(db)
 
 	categoryUseCase := usecase.NewCategoryUseCase(cr)
 	bookUseCase := usecase.NewBookUseCase(br)
+	accountUseCase := usecase.NewAccountUseCase(ar)
 
 	uh := handler.NewCategoryHandler(categoryUseCase)
 	bh := handler.NewBookHandler(bookUseCase)
+	ah := handler.NewAccountHandler(accountUseCase)
 
-	ah := handler.NewApiHandler(uh,bh)
+
+	api := handler.NewApiHandler(uh,bh,ah)
 	
-	r := router.Route(ah)
+	r := router.Route(api)
 
 	fmt.Printf("[START] server. port: %s\n", addr)
 

@@ -19,9 +19,8 @@ var books []model.Book
 var categories []model.Category
 var descriptions []model.Description
 
-func (c *bookRepository) List() (*[]model.Book, service.RecodeNotFoundError) {
-	accountId := 1
-	err := c.DB.Where("account_id = ?", accountId).Find(&books).Error
+func (c *bookRepository) List(account model.Account) (*[]model.Book, service.RecodeNotFoundError) {
+	err := c.DB.Where("account_id = ?", account.ID).Find(&books).Error
 	for i := range books {
 		if books[i].AuthorID != 0 {
 			err = c.DB.Model(books[i]).Related(&books[i].Author,"Author").Error

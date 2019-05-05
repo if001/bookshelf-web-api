@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bookshelf-web-api/application/usecase"
+	"bookshelf-web-api/domain/model"
 	"bookshelf-web-api/domain/service"
 	"encoding/json"
 	"github.com/julienschmidt/httprouter"
@@ -26,7 +27,8 @@ func NewBookHandler(b usecase.BookUseCase) BookHandler {
 }
 
 func (b *bookHandler) BookList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	books, err := b.BookUseCase.BookListUseCase()
+	account := r.Context().Value("account").(*model.Account)
+	books, err := b.BookUseCase.BookListUseCase(*account)
 	if err != nil {
 		ErrorHandler(err, w ,r)
 	} else {
