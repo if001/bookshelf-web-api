@@ -19,15 +19,15 @@ func main() {
 	cr := infrastructure.NewCategoryRepository(db)
 	br := infrastructure.NewBookRepository(db)
 	ar := infrastructure.NewAccountRepository(db)
+	ar2 := infrastructure.NewAuthorRepository(db)
 
 	categoryUseCase := usecase.NewCategoryUseCase(cr)
-	bookUseCase := usecase.NewBookUseCase(br)
+	bookUseCase := usecase.NewBookUseCase(br, ar2)
 	accountUseCase := usecase.NewAccountUseCase(ar)
 
 	uh := handler.NewCategoryHandler(categoryUseCase)
 	bh := handler.NewBookHandler(bookUseCase)
 	ah := handler.NewAccountHandler(accountUseCase)
-
 
 	api := handler.NewApiHandler(uh,bh,ah)
 	

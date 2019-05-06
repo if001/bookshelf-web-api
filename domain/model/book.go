@@ -23,3 +23,11 @@ type Book struct {
 func (Book) TableName() string {
 	return "books"
 }
+
+type BookRequest struct {
+	Title string
+	Author string
+	Categories []string // default null
+	PrevBookId int64 // default 0
+	NextBookId int64 // default 0
+}
