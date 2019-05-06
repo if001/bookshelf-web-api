@@ -4,6 +4,7 @@ import (
 	"bookshelf-web-api/domain/model"
 	"bookshelf-web-api/domain/repository"
 	"errors"
+	"fmt"
 	"github.com/jinzhu/gorm"
 	"time"
 )
@@ -27,9 +28,10 @@ func (c *accountRepository) Get(token string) (*model.Account, error) {
 	if err == nil {
 		err = c.DB.Where("token = ?", token).Find(&authToken).Error
 		if err == nil {
-			if authToken.ExpireTime.Before(time.Now()) {
-				authToken.ExpireTime = time.Now().AddDate(0,3,0) // 3ヶ月伸ばす
-				err = c.DB.Save(&authToken).Error
+			if authToken.ExpireTime.After(time.Now()) {
+				// authToken.ExpireTime = time.Now().AddDate(0,3,0) // 3ヶ月伸ばす
+				// err = c.DB.Save(&authToken).Error
+				fmt.Println("expire time ok")
 			} else {
 				err = errors.New("expire time")
 			}
