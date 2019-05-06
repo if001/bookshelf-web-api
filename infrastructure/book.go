@@ -26,9 +26,15 @@ var descriptions []model.Description
 
 func (r *bookRepository) List(account model.Account) (*[]model.Book, service.RecodeNotFoundError) {
 	err := r.DB.Where("account_id = ?", account.ID).Find(&books).Error
+	if err != nil {
+		return &[]model.Book{}, err 
+	}
 	for i := range books {
 		if books[i].AuthorID.Int64 != 0 {
 			err = r.DB.Model(books[i]).Related(&books[i].Author,"Author").Error
+			if err != nil {
+				return &[]model.Book{}, err 
+			}
 		} else {
 			books[i].Author = model.Author{}
 		}
@@ -36,16 +42,49 @@ func (r *bookRepository) List(account model.Account) (*[]model.Book, service.Rec
 			Where("book_id = ?", books[i].ID).
 			Find(&categories).
 			Error
+		if err != nil {
+			return &[]model.Book{}, err 
+		}
 		books[i].Categories = categories
 
 		err = r.DB.Where("book_id = ?",books[i].ID).Find(&descriptions).Error
+		if err != nil {
+			return &[]model.Book{}, err 
+		}
 		books[i].Description = descriptions
 	}
 	return &books, err
 }
 
-func (c *bookRepository) Find(id int64, account model.Account) (*[]model.Book, service.RecodeNotFoundError) {
-	err := c.DB.Where("account_id = ?", account.ID).Where("id = ?",id).Find(&books).Error
+func (r *bookRepository) Find(id int64, account model.Account) (*[]model.Book, service.RecodeNotFoundError) {
+	err := r.DB.Where("account_id = ?", account.ID).Where("id = ?",id).Find(&books).Error
+	if err != nil {
+		return &[]model.Book{}, err 
+	}
+		for i := range books {
+		if books[i].AuthorID.Int64 != 0 {
+			err = r.DB.Model(books[i]).Related(&books[i].Author,"Author").Error
+			if err != nil {
+				return &[]model.Book{}, err 
+			}
+		} else {
+			books[i].Author = model.Author{}
+		}
+		err = r.DB.Joins("JOIN books_categories ON books_categories.category_id = categories.id").
+			Where("book_id = ?", books[i].ID).
+			Find(&categories).
+			Error
+		if err != nil {
+			return &[]model.Book{}, err 
+		}
+		books[i].Categories = categories
+
+		err = r.DB.Where("book_id = ?",books[i].ID).Find(&descriptions).Error
+		if err != nil {
+			return &[]model.Book{}, err 
+		}
+		books[i].Description = descriptions
+	}
 	return &books, err
 }
 
