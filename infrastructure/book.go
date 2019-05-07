@@ -88,10 +88,26 @@ func (r *bookRepository) FindBook(id int64, account model.Account) (*[]model.Boo
 	return &books, err
 }
 
-func (c *bookRepository) GetDescriptions(id int64) (*[]model.Description, service.RecodeNotFoundError) {
+func (c *bookRepository) FindDescriptions(id int64) (*[]model.Description, service.RecodeNotFoundError) {
 	err := c.DB.Where("book_id = ?", id).Find(&descriptions).Error
 	return &descriptions, err
 }
+
+func (c *bookRepository) CreateDescription(id int64, description string) (*model.Description, service.RecodeNotFoundError) {
+	err := c.DB.Where("id = ?", id).Find(&book).Error
+	if err != nil {
+		return nil, err
+	}
+	newDescription := model.Description{}
+	newDescription.BookId = book.ID
+	newDescription.Description = description
+	err = c.DB.Create(&newDescription).Error
+	if err != nil {
+		return nil, err
+	}
+	return &newDescription, err
+}
+
 
 func createAuthor(r *bookRepository, tx *gorm.DB, author string) (*model.Author, error) {
 	newAuthor := model.Author{}

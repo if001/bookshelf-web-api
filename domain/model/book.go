@@ -31,3 +31,7 @@ type BookRequest struct {
 	PrevBookId int64 // default 0
 	NextBookId int64 // default 0
 }
+
+type DescriptionRequest struct {
+	Description string
+}
