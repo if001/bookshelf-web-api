@@ -31,9 +31,11 @@ func (u *categoryHandler) CategoryList(w http.ResponseWriter, r *http.Request, _
 	cate, err := u.CategoryUseCase.CategoryUseCase()
 	if err != nil {
 		ErrorHandler(err, w, r)
+		return
 	}
 	err = json.NewEncoder(w).Encode(Response{resultCode:200, Content:cate})
 	if err != nil {
 		ErrorHandler(err, w, r)
+		return
 	}
 }

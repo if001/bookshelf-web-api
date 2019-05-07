@@ -34,11 +34,12 @@ func (b *bookHandler) GetBooks(w http.ResponseWriter, r *http.Request, _ httprou
 	books, err := b.BookUseCase.BookListUseCase(*account)
 	if err != nil {
 		ErrorHandler(err, w ,r)
-	} else {
-		err = json.NewEncoder(w).Encode(Response{resultCode:200, Content:books})
-		if err != nil {
-			ErrorHandler(err, w ,r)
-		}
+		return
+	}
+	err = json.NewEncoder(w).Encode(Response{resultCode:200, Content:books})
+	if err != nil {
+		ErrorHandler(err, w ,r)
+		return
 	}
 }
 
@@ -47,16 +48,17 @@ func (b *bookHandler) FindBook(w http.ResponseWriter, r *http.Request, ps httpro
 	account := r.Context().Value("account").(*model.Account)
 	if err != nil {
 		ErrorHandler(service.InternalServerError(err), w ,r)
-	} else {
-		book, err := b.BookUseCase.BookFindUseCase(bookId, *account)
-		if err != nil {
-			ErrorHandler(err, w ,r)
-		} else {
-			err = json.NewEncoder(w).Encode(Response{resultCode:200, Content:book})
-			if err != nil {
-				ErrorHandler(err, w ,r)
-			}
-		}
+		return
+	}
+	book, err := b.BookUseCase.BookFindUseCase(bookId, *account)
+	if err != nil {
+		ErrorHandler(err, w ,r)
+		return
+	}
+	err = json.NewEncoder(w).Encode(Response{resultCode:200, Content:book})
+	if err != nil {
+		ErrorHandler(err, w ,r)
+		return
 	}
 }
 
@@ -85,17 +87,18 @@ func (b *bookHandler) CreateBook(w http.ResponseWriter, r *http.Request, _ httpr
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		ErrorHandler(service.BadRequest(err), w ,r)
-	}else {
-		err = json.Unmarshal(body, &bookRequest)
-		if err != nil {
-			ErrorHandler(service.BadRequest(err), w ,r)
-		} else {
-			newBook, err := b.BookUseCase.CreateBook(bookRequest, *account)
-			err = json.NewEncoder(w).Encode(Response{resultCode:200, Content:newBook})
-			if err != nil {
-				ErrorHandler(err, w ,r)
-			}
-		}
+		return
+	}
+	err = json.Unmarshal(body, &bookRequest)
+	if err != nil {
+		ErrorHandler(service.BadRequest(err), w ,r)
+		return
+	}
+	newBook, err := b.BookUseCase.CreateBook(bookRequest, *account)
+	err = json.NewEncoder(w).Encode(Response{resultCode:200, Content:newBook})
+	if err != nil {
+		ErrorHandler(err, w ,r)
+		return
 	}
 }
 
@@ -108,16 +111,21 @@ func (b *bookHandler) UpdateBook(w http.ResponseWriter, r *http.Request, ps http
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		ErrorHandler(service.BadRequest(err), w ,r)
-	}else {
-		err = json.Unmarshal(body, &bookRequest)
-		if err != nil {
-			ErrorHandler(service.BadRequest(err), w ,r)
-		} else {
-			newBook, err := b.BookUseCase.UpdateBook(bookId, bookRequest, *account)
-			err = json.NewEncoder(w).Encode(Response{resultCode:200, Content:newBook})
-			if err != nil {
-				ErrorHandler(err, w ,r)
-			}
-		}
+		return
+	}
+	err = json.Unmarshal(body, &bookRequest)
+	if err != nil {
+		ErrorHandler(service.BadRequest(err), w ,r)
+		return
+	}
+	newBook, err := b.BookUseCase.UpdateBook(bookId, bookRequest, *account)
+	err = json.NewEncoder(w).Encode(Response{resultCode:200, Content:newBook})
+	if err != nil {
+		ErrorHandler(err, w ,r)
+		return
+	}
+}
+	}
+}
 	}
 }
