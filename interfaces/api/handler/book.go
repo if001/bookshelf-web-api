@@ -16,6 +16,7 @@ type BookHandler interface {
 	FindBook(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	FindDescription(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	Create(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
+	Update(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 }
 
 type bookHandler struct {
@@ -76,9 +77,6 @@ func (b *bookHandler) FindDescription(w http.ResponseWriter, r *http.Request, ps
 	}
 }
 
-
-
-
 var bookRequest model.BookRequest
 func (b *bookHandler) Create(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	defer r.Body.Close()
@@ -99,5 +97,27 @@ func (b *bookHandler) Create(w http.ResponseWriter, r *http.Request, _ httproute
 			}
 		}
 	}
+}
 
+func (b *bookHandler) Update(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	bookId,err := strconv.ParseInt(ps.ByName("book"),10,64)
+
+	defer r.Body.Close()
+	account := r.Context().Value("account").(*model.Account)
+
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		ErrorHandler(service.BadRequest(err), w ,r)
+	}else {
+		err = json.Unmarshal(body, &bookRequest)
+		if err != nil {
+			ErrorHandler(service.BadRequest(err), w ,r)
+		} else {
+			newBook, err := b.BookUseCase.UpdateBook(bookId, bookRequest, *account)
+			err = json.NewEncoder(w).Encode(Response{resultCode:200, Content:newBook})
+			if err != nil {
+				ErrorHandler(err, w ,r)
+			}
+		}
+	}
 }

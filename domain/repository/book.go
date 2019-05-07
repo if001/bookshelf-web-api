@@ -10,4 +10,5 @@ type BookRepository interface {
 	Find(id int64, account model.Account) (*[]model.Book, service.RecodeNotFoundError)
 	Description(id int64) (*[]model.Description, service.RecodeNotFoundError)
 	Create(bookRequest model.BookRequest,account model.Account) (*model.Book, service.RecodeNotFoundError)
+	Update(id int64, bookRequest model.BookRequest,account model.Account) (*model.Book, service.RecodeNotFoundError)
 }
