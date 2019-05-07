@@ -63,8 +63,9 @@ func (b *bookHandler) FindBook(w http.ResponseWriter, r *http.Request, ps httpro
 	}
 }
 
-var bookRequest model.BookRequest
+
 func (b *bookHandler) CreateBook(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	bookRequest := model.BookRequest{}
 	defer r.Body.Close()
 	account := r.Context().Value("account").(*model.Account)
 
@@ -87,6 +88,7 @@ func (b *bookHandler) CreateBook(w http.ResponseWriter, r *http.Request, _ httpr
 }
 
 func (b *bookHandler) UpdateBook(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	bookRequest := model.BookRequest{}
 	bookId,err := strconv.ParseInt(ps.ByName("book"),10,64)
 
 	defer r.Body.Close()
@@ -128,8 +130,9 @@ func (b *bookHandler) FindDescription(w http.ResponseWriter, r *http.Request, ps
 	}
 }
 
-var descriptionRequest model.DescriptionRequest
+
 func (b *bookHandler) CreateDescription(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	descriptionRequest := model.DescriptionRequest{}
 	bookId,err := strconv.ParseInt(ps.ByName("book"),10,64)
 	if err != nil {
 		ErrorHandler(service.InternalServerError(err), w ,r)
