@@ -125,7 +125,7 @@ var authorModel []model.Author
 func (r *bookRepository) CreateBook(bookRequest model.BookRequest, account model.Account) (*model.Book, service.RecodeNotFoundError) {
 	err := r.DB.Where("name = ?",bookRequest.Author).Find(&authorModel).Error
 	if err != nil {
-		return &model.Book{}, err
+		return nil, err
 	}
 
 	tx := r.DB.Begin()
@@ -141,7 +141,7 @@ func (r *bookRepository) CreateBook(bookRequest model.BookRequest, account model
 		newAuthor, err := createAuthor(r, tx, bookRequest.Author)
 		if err != nil {
 			tx.Rollback()
-			return &model.Book{}, err
+			return nil, err
 		}
 		authorId = sql.NullInt64{Int64:newAuthor.ID, Valid:true }
 	} else {
@@ -151,7 +151,7 @@ func (r *bookRepository) CreateBook(bookRequest model.BookRequest, account model
 	err = createCategories(r, tx, bookRequest.Categories)
 	if err != nil {
 		tx.Rollback()
-		return &model.Book{}, err
+		return nil, err
 	}
 	
 	now := time.Now()
@@ -166,7 +166,7 @@ func (r *bookRepository) CreateBook(bookRequest model.BookRequest, account model
 	err = tx.Create(&book).Error
 	if err != nil {
 		tx.Rollback()
-		return &model.Book{}, err
+		return nil, err
 	}
 	err = tx.Commit().Error
 	return &book, err
@@ -190,7 +190,7 @@ func (r *bookRepository) UpdateBook(id int64, bookRequest model.BookRequest, acc
 		newAuthor, err := createAuthor(r, tx, bookRequest.Author)
 		if err != nil {
 			tx.Rollback()
-			return &model.Book{}, err
+			return nil, err
 		}
 		authorId = sql.NullInt64{Int64:newAuthor.ID, Valid:true }
 	} else {
@@ -200,13 +200,13 @@ func (r *bookRepository) UpdateBook(id int64, bookRequest model.BookRequest, acc
 	err = createCategories(r, tx, bookRequest.Categories)
 	if err != nil {
 		tx.Rollback()
-		return &model.Book{}, err
+		return nil, err
 	}
 
 	err = r.DB.Where("id = ?", id).Find(&book).Error
 	if err != nil {
 		tx.Rollback()
-		return &model.Book{}, err
+		return nil, err
 	}
 
 
@@ -223,7 +223,7 @@ func (r *bookRepository) UpdateBook(id int64, bookRequest model.BookRequest, acc
 	err = tx.Create(&book).Error
 	if err != nil {
 			tx.Rollback()
-		return &model.Book{}, err
+		return nil, err
 	}
 
 	err = tx.Commit().Error
