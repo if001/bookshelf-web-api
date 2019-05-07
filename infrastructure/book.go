@@ -24,7 +24,7 @@ var books []model.Book
 var categoriesModel []model.Category
 var descriptions []model.Description
 
-func (r *bookRepository) List(account model.Account) (*[]model.Book, service.RecodeNotFoundError) {
+func (r *bookRepository) GetBooks(account model.Account) (*[]model.Book, service.RecodeNotFoundError) {
 	err := r.DB.Where("account_id = ?", account.ID).Find(&books).Error
 	if err != nil {
 		return &[]model.Book{}, err 
@@ -56,7 +56,7 @@ func (r *bookRepository) List(account model.Account) (*[]model.Book, service.Rec
 	return &books, err
 }
 
-func (r *bookRepository) Find(id int64, account model.Account) (*[]model.Book, service.RecodeNotFoundError) {
+func (r *bookRepository) FindBook(id int64, account model.Account) (*[]model.Book, service.RecodeNotFoundError) {
 	err := r.DB.Where("account_id = ?", account.ID).Where("id = ?",id).Find(&books).Error
 	if err != nil {
 		return &[]model.Book{}, err 
@@ -88,7 +88,7 @@ func (r *bookRepository) Find(id int64, account model.Account) (*[]model.Book, s
 	return &books, err
 }
 
-func (c *bookRepository) Description(id int64) (*[]model.Description, service.RecodeNotFoundError) {
+func (c *bookRepository) GetDescriptions(id int64) (*[]model.Description, service.RecodeNotFoundError) {
 	err := c.DB.Where("book_id = ?", id).Find(&descriptions).Error
 	return &descriptions, err
 }
@@ -122,7 +122,7 @@ func createCategories(r *bookRepository, tx *gorm.DB, categories []string) error
 }
 
 var authorModel []model.Author
-func (r *bookRepository) Create(bookRequest model.BookRequest, account model.Account) (*model.Book, service.RecodeNotFoundError) {
+func (r *bookRepository) CreateBook(bookRequest model.BookRequest, account model.Account) (*model.Book, service.RecodeNotFoundError) {
 	err := r.DB.Where("name = ?",bookRequest.Author).Find(&authorModel).Error
 	if err != nil {
 		return &model.Book{}, err
@@ -172,7 +172,7 @@ func (r *bookRepository) Create(bookRequest model.BookRequest, account model.Acc
 	return &book, err
 }
 
-func (r *bookRepository) Update(id int64, bookRequest model.BookRequest, account model.Account) (*model.Book, service.RecodeNotFoundError) {
+func (r *bookRepository) UpdateBook(id int64, bookRequest model.BookRequest, account model.Account) (*model.Book, service.RecodeNotFoundError) {
 	err := r.DB.Where("name = ?",bookRequest.Author).Find(&authorModel).Error
 	if err != nil {
 		return &model.Book{}, err

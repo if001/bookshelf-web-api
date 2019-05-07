@@ -6,9 +6,9 @@ import (
 )
 
 type BookRepository interface {
-	List(account model.Account) (*[]model.Book, service.RecodeNotFoundError)
-	Find(id int64, account model.Account) (*[]model.Book, service.RecodeNotFoundError)
-	Description(id int64) (*[]model.Description, service.RecodeNotFoundError)
-	Create(bookRequest model.BookRequest,account model.Account) (*model.Book, service.RecodeNotFoundError)
-	Update(id int64, bookRequest model.BookRequest,account model.Account) (*model.Book, service.RecodeNotFoundError)
+	GetBooks(account model.Account) (*[]model.Book, service.RecodeNotFoundError)
+	FindBook(id int64, account model.Account) (*[]model.Book, service.RecodeNotFoundError)
+	CreateBook(bookRequest model.BookRequest,account model.Account) (*model.Book, service.RecodeNotFoundError)
+	UpdateBook(id int64, bookRequest model.BookRequest,account model.Account) (*model.Book, service.RecodeNotFoundError)
+	GetDescriptions(id int64) (*[]model.Description, service.RecodeNotFoundError)
 }

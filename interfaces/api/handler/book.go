@@ -12,11 +12,11 @@ import (
 )
 
 type BookHandler interface {
-	BookList(w http.ResponseWriter, r *http.Request, _ httprouter.Params)
+	GetBooks(w http.ResponseWriter, r *http.Request, _ httprouter.Params)
 	FindBook(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
+	CreateBook(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
+	UpdateBook(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	FindDescription(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
-	Create(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
-	Update(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 }
 
 type bookHandler struct {
@@ -29,7 +29,7 @@ func NewBookHandler(b usecase.BookUseCase) BookHandler {
 	}
 }
 
-func (b *bookHandler) BookList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func (b *bookHandler) GetBooks(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	account := r.Context().Value("account").(*model.Account)
 	books, err := b.BookUseCase.BookListUseCase(*account)
 	if err != nil {
@@ -78,7 +78,7 @@ func (b *bookHandler) FindDescription(w http.ResponseWriter, r *http.Request, ps
 }
 
 var bookRequest model.BookRequest
-func (b *bookHandler) Create(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+func (b *bookHandler) CreateBook(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	defer r.Body.Close()
 	account := r.Context().Value("account").(*model.Account)
 
@@ -99,7 +99,7 @@ func (b *bookHandler) Create(w http.ResponseWriter, r *http.Request, _ httproute
 	}
 }
 
-func (b *bookHandler) Update(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+func (b *bookHandler) UpdateBook(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	bookId,err := strconv.ParseInt(ps.ByName("book"),10,64)
 
 	defer r.Body.Close()
