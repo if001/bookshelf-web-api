@@ -17,10 +17,11 @@ func NewAccountRepository(db *gorm.DB) repository.AccountRepository {
 	return &accountRepository{ DB : db }
 }
 
-var account model.Account
-var authToken model.AuthToken
 
-func (c *accountRepository) Get(token string) (*model.Account, error) {
+func (c *accountRepository) Get(token string) (*[]model.Account, error) {
+	var account []model.Account
+	var authToken model.AuthToken
+
 	err := c.DB.Joins("JOIN auth_token ON auth_token.account_id = accounts.id").
 		Where("token = ?",token).
 		Find(&account).

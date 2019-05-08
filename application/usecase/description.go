@@ -6,7 +6,7 @@ import (
 )
 
 type DescriptionUseCase interface {
-	DescriptionUpdateUseCase(id int64, description string) (*model.Description, error)
+	DescriptionUpdateUseCase(id int64, description string) (*[]model.Description, error)
 }
 
 type descriptionUseCase struct {
@@ -19,7 +19,7 @@ func NewDescriptionUseCase(r repository.DescriptionRepository) DescriptionUseCas
 	}
 }
 
-func (u *descriptionUseCase) DescriptionUpdateUseCase(id int64, description string) (*model.Description, error) {
-	cate, err := u.DescriptionRepo.Update(id, description)
-	return cate, err
+func (u *descriptionUseCase) DescriptionUpdateUseCase(id int64, description string) (*[]model.Description, error) {
+	d, err := u.DescriptionRepo.Update(id, description)
+	return d, err
 }

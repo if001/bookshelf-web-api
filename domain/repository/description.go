@@ -6,7 +6,7 @@ import (
 )
 
 type DescriptionRepository interface {
-	Update(id int64, description string) (*model.Description, service.RecodeNotFoundError)
+	Update(id int64, description string) (*[]model.Description, service.RecodeNotFoundError)
 }
 
 
