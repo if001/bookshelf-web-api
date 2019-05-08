@@ -1,37 +1,73 @@
 package model
 
 import (
-	"database/sql"
+	"time"
 	"github.com/go-sql-driver/mysql"
 )
 
 type Book struct {
-	BaseModel
-	AccountID   int64
-	Title       string `gorm:"type:varchar(40);"`
-	AuthorID    sql.NullInt64
-	StartAt     mysql.NullTime
-	EndAt       mysql.NullTime
-	PublishedAt mysql.NullTime
-	NextBookID  sql.NullInt64
-	PrevBookID  sql.NullInt64
-	Author      Author `gorm:"foreignkey:AuthorID"`
-	Categories  []Category
-	Description []Description
+	Base
+	BookBaseInfo
+	BookInfo
 }
 
-func (Book) TableName() string {
-	return "books"
+type BookBaseInfo struct {
+	Name string
+	Author Author
+	PublishedAt time.Time
+	Publisher string
 }
 
-type BookRequest struct {
-	Title string
-	Author string
-	Categories []string // default null
-	PrevBookId int64 // default 0
-	NextBookId int64 // default 0
+type BookInfo struct {
+	AccountId string
+	StartAt mysql.NullTime
+	EndAt mysql.NullTime
+	NextBookID  int64
+	PrevBookID  int64
+	Descriptions []Description
+	Categories []Category
+}
+func (b *BookInfo) GetReadState() ReadState {
+	if b.StartAt.Valid && b.EndAt.Valid {
+		return &read{}
+	} else if b.StartAt.Valid && !b.EndAt.Valid {
+		return &reading{}
+	} else if !b.StartAt.Valid && !b.EndAt.Valid {
+		return &notRead{}
+	} else {
+		return nil
+	}
 }
 
-type DescriptionRequest struct {
-	Description string
+type Category struct {
+	Base
+	Name string
+}
+func (a *Category) Fill(id int64, name string, createdAt time.Time, updatedAt time.Time) {
+	a.Id = id
+	a.Name = name
+	a.CreatedAt = createdAt
+	a.UpdatedAt = updatedAt
+}
+
+type Author struct {
+	Base
+	Name string
+}
+func (a *Author) Fill(id int64, name string, createdAt time.Time, updatedAt time.Time) {
+	a.Id = id
+	a.Name = name
+	a.CreatedAt = createdAt
+	a.UpdatedAt = updatedAt
+}
+
+type Description struct {
+	Base
+	Content string
+}
+func (a *Description) Fill(id int64, content string, createdAt time.Time, updatedAt time.Time) {
+	a.Id = id
+	a.Content = content
+	a.CreatedAt = createdAt
+	a.UpdatedAt = updatedAt
 }

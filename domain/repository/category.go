@@ -7,5 +7,6 @@ import (
 
 type CategoryRepository interface {
 	Get() (*model.Category, service.RecodeNotFoundError)
+	GetByBookId(bookId int64) (*[]model.Category, error)
 }
 

@@ -1,12 +1,11 @@
 package usecase
 
 import (
-	"bookshelf-web-api/domain/model"
 	"bookshelf-web-api/domain/repository"
 )
 
 type DescriptionUseCase interface {
-	DescriptionUpdateUseCase(id int64, description model.DescriptionRequest) (*model.Description, error)
+	// DescriptionUpdateUseCase(id int64, description model.DescriptionRequest) (*model.Description, error)
 }
 
 type descriptionUseCase struct {
@@ -19,7 +18,7 @@ func NewDescriptionUseCase(r repository.DescriptionRepository) DescriptionUseCas
 	}
 }
 
-func (u *descriptionUseCase) DescriptionUpdateUseCase(id int64, description model.DescriptionRequest) (*model.Description, error) {
-	d, err := u.DescriptionRepo.Update(id, description)
-	return d, err
-}
+//func (u *descriptionUseCase) DescriptionUpdateUseCase(id int64, description model.DescriptionRequest) (*model.Description, error) {
+//	d, err := u.DescriptionRepo.Update(id, description)
+//	return d, err
+//}

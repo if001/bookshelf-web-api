@@ -2,10 +2,8 @@ package handler
 
 import (
 	"bookshelf-web-api/application/usecase"
-	"context"
 	"fmt"
 	"github.com/julienschmidt/httprouter"
-	"log"
 	"net/http"
 )
 
@@ -33,14 +31,10 @@ func (a *accountHandler) AuthMiddleware(next httprouter.Handle) httprouter.Handl
 			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
 			return
 		}
-		account, err := a.AccountUseCase.AccountGetUseCase(token)
-		if err != nil {
-			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
-			log.Println(err)
-			return
-		}
-		ctx := context.WithValue(r.Context(),"account",account)
+		ctx := r.Context()
+		a.AccountUseCase.SetAccountToCtxByToken(token, &ctx)
 		r = r.WithContext(ctx)
+
 		fmt.Println("end")
 		next(w, r, ps)
 	}

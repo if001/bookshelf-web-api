@@ -17,14 +17,14 @@ func main() {
 	db := mysql.GetDBConn()
 
 	cr := infrastructure.NewCategoryRepository(db)
-	br := infrastructure.NewBookRepository(db)
-	ar := infrastructure.NewAccountRepository(db)
-	ar2 := infrastructure.NewAuthorRepository(db)
+	bookR := infrastructure.NewBookRepository(db)
+	accountR := infrastructure.NewAccountRepository(db)
+	authorR := infrastructure.NewAuthorRepository(db)
 	dr := infrastructure.NewDescriptionRepository(db)
 
 	categoryUseCase := usecase.NewCategoryUseCase(cr)
-	bookUseCase := usecase.NewBookUseCase(br, ar2)
-	accountUseCase := usecase.NewAccountUseCase(ar)
+	bookUseCase := usecase.NewBookUseCase(bookR, authorR, accountR)
+	accountUseCase := usecase.NewAccountUseCase(accountR)
 	descriptionUseCase := usecase.NewDescriptionUseCase(dr)
 
 	uh := handler.NewCategoryHandler(categoryUseCase)

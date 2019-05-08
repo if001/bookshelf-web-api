@@ -1,12 +1,13 @@
 package infrastructure
 
 import (
-	"bookshelf-web-api/domain/model"
 	"bookshelf-web-api/domain/repository"
 	"errors"
-	"fmt"
 	"github.com/jinzhu/gorm"
+	"context"
+	"bookshelf-web-api/infrastructure/tables"
 	"time"
+	"fmt"
 )
 
 type accountRepository struct {
@@ -17,21 +18,30 @@ func NewAccountRepository(db *gorm.DB) repository.AccountRepository {
 	return &accountRepository{ DB : db }
 }
 
+func (c *accountRepository) GetAccount(ctx context.Context) (*tables.Account, error) {
+	account,ok := ctx.Value("account").(tables.Account)
+	if ok {
+		return &account, nil
+	} else {
+		return nil, errors.New("bind error")
+	}
+}
 
-func (c *accountRepository) Get(token string) (*model.Account, error) {
-	var account []model.Account
-	var authToken model.AuthToken
+
+func (c *accountRepository) SetAccount(token string, ctx *context.Context) (error) {
+	var account []tables.Account
+	var authToken tables.AuthToken
 
 	err := c.DB.Joins("JOIN auth_token ON auth_token.account_id = accounts.id").
 		Where("token = ?",token).
 		Find(&account).
 		Error
 	if err != nil {
-		return nil, err
+		return err
 	}
 	err = c.DB.Where("token = ?", token).Find(&authToken).Error
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if authToken.ExpireTime.After(time.Now()) {
@@ -39,10 +49,11 @@ func (c *accountRepository) Get(token string) (*model.Account, error) {
 		// err = c.DB.Save(&authToken).Error
 		fmt.Println("expire time ok")
 	} else {
-		return nil, errors.New("expire time")
+		return errors.New("expire time")
 	}
 	if len(account) == 0 {
-		return nil, errors.New("record not found")
+		return errors.New("record not found")
 	}
-	return &account[0], err
+	*ctx = context.WithValue(*ctx, "account", account[0])
+	return nil
 }
