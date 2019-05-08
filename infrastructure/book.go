@@ -5,6 +5,7 @@ import (
 	"bookshelf-web-api/domain/repository"
 	"bookshelf-web-api/domain/service"
 	"database/sql"
+	"errors"
 	"github.com/go-sql-driver/mysql"
 	"github.com/jinzhu/gorm"
 	"time"
@@ -19,12 +20,11 @@ func NewBookRepository(db *gorm.DB) repository.BookRepository {
 	return &bookRepository{ DB : db }
 }
 
-var book model.Book
-var books []model.Book
-var categoriesModel []model.Category
-var descriptions []model.Description
-
 func (r *bookRepository) GetBooks(account model.Account) (*[]model.Book, service.RecodeNotFoundError) {
+	var books []model.Book
+	var categoriesModel []model.Category
+	var descriptions []model.Description
+
 	err := r.DB.Where("account_id = ?", account.ID).Find(&books).Error
 	if err != nil {
 		return &[]model.Book{}, err 
@@ -57,6 +57,10 @@ func (r *bookRepository) GetBooks(account model.Account) (*[]model.Book, service
 }
 
 func (r *bookRepository) FindBook(id int64, account model.Account) (*[]model.Book, service.RecodeNotFoundError) {
+	var books []model.Book
+	var categoriesModel []model.Category
+	var descriptions []model.Description
+
 	err := r.DB.Where("account_id = ?", account.ID).Where("id = ?",id).Find(&books).Error
 	if err != nil {
 		return &[]model.Book{}, err 
@@ -89,17 +93,25 @@ func (r *bookRepository) FindBook(id int64, account model.Account) (*[]model.Boo
 }
 
 func (c *bookRepository) FindDescriptions(id int64) (*[]model.Description, service.RecodeNotFoundError) {
+	var descriptions = []model.Description{}
+
 	err := c.DB.Where("book_id = ?", id).Find(&descriptions).Error
 	return &descriptions, err
 }
 
 func (c *bookRepository) CreateDescription(id int64, description string) (*model.Description, service.RecodeNotFoundError) {
-	err := c.DB.Where("id = ?", id).Find(&book).Error
+	var books []model.Book
+
+	err := c.DB.Where("id = ?", id).Find(&books).Error
 	if err != nil {
 		return nil, err
 	}
+	if len(books) == 0 {
+		return nil, errors.New("record not found")
+	}
+
 	newDescription := model.Description{}
-	newDescription.BookId = book.ID
+	newDescription.BookId = books[0].ID
 	newDescription.Description = description
 	err = c.DB.Create(&newDescription).Error
 	if err != nil {
@@ -110,7 +122,7 @@ func (c *bookRepository) CreateDescription(id int64, description string) (*model
 
 
 func createAuthor(r *bookRepository, tx *gorm.DB, author string) (*model.Author, error) {
-	newAuthor := model.Author{}
+	var newAuthor model.Author
 	newAuthor.Name = author
 	err := tx.Create(&newAuthor).Error
 	if err != nil {
@@ -120,6 +132,8 @@ func createAuthor(r *bookRepository, tx *gorm.DB, author string) (*model.Author,
 }
 
 func createCategories(r *bookRepository, tx *gorm.DB, categories []string) error {
+	var categoriesModel []model.Category
+
 	for i := range categories {
 		err := r.DB.Where("name = ?", categories[i]).Find(&categoriesModel).Error
 		if err != nil {
@@ -137,8 +151,10 @@ func createCategories(r *bookRepository, tx *gorm.DB, categories []string) error
 	return nil
 }
 
-var authorModel []model.Author
+
 func (r *bookRepository) CreateBook(bookRequest model.BookRequest, account model.Account) (*model.Book, service.RecodeNotFoundError) {
+	var authorModel []model.Author
+
 	err := r.DB.Where("name = ?",bookRequest.Author).Find(&authorModel).Error
 	if err != nil {
 		return nil, err
@@ -189,6 +205,8 @@ func (r *bookRepository) CreateBook(bookRequest model.BookRequest, account model
 }
 
 func (r *bookRepository) UpdateBook(id int64, bookRequest model.BookRequest, account model.Account) (*model.Book, service.RecodeNotFoundError) {
+	var authorModel []model.Author
+
 	err := r.DB.Where("name = ?",bookRequest.Author).Find(&authorModel).Error
 	if err != nil {
 		return &model.Book{}, err
@@ -219,12 +237,17 @@ func (r *bookRepository) UpdateBook(id int64, bookRequest model.BookRequest, acc
 		return nil, err
 	}
 
-	err = r.DB.Where("id = ?", id).Find(&book).Error
+	books := []model.Book{}
+	err = r.DB.Where("id = ?", id).Find(&books).Error
 	if err != nil {
 		tx.Rollback()
 		return nil, err
 	}
-
+	if len(books) == 0 {
+		tx.Rollback()
+		return nil, errors.New("record not found")
+	}
+	book := books[0]
 
 	if bookRequest.Title != "" {
 		book.Title = bookRequest.Title
