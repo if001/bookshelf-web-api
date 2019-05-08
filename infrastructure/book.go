@@ -65,7 +65,7 @@ func (r *bookRepository) FindBook(id int64, account model.Account) (*[]model.Boo
 	if err != nil {
 		return &[]model.Book{}, err 
 	}
-		for i := range books {
+	for i := range books {
 		if books[i].AuthorID.Int64 != 0 {
 			err = r.DB.Model(books[i]).Related(&books[i].Author,"Author").Error
 			if err != nil {
