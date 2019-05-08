@@ -6,6 +6,7 @@ import (
 	"bookshelf-web-api/domain/service"
 	"errors"
 	"github.com/jinzhu/gorm"
+	"fmt"
 )
 
 type descriptionRepository struct {
@@ -17,17 +18,19 @@ func NewDescriptionRepository(db *gorm.DB) repository.DescriptionRepository {
 }
 
 
-func (c *descriptionRepository) Update(id int64, description string) (*[]model.Description, service.RecodeNotFoundError) {
-	var descriptionModel []model.Description
-	err := c.DB.Find(&descriptionModel,"id = ?", id).Error
-	// err := c.DB.Where("id = ?", id).Find(&descriptionModel).Error
+func (c *descriptionRepository) Update(id int64, descriptionRequest model.DescriptionRequest) (*model.Description, service.RecodeNotFoundError) {
+	var descriptionModelForBind []model.Description
+	err := c.DB.Where("id = ?", id).Find(&descriptionModelForBind).Error
 	if err != nil {
 		return nil, err
 	}
-	if len(descriptionModel) == 0 {
+	if len(descriptionModelForBind) == 0 {
 		return nil, errors.New("not found")
 	}
-	descriptionModel[0].Description = description
+	descriptionModel := descriptionModelForBind[0]
+
+	fmt.Println("aaaaaaaa")
+	descriptionModel.Description = descriptionRequest.Description
 	err = c.DB.Save(&descriptionModel).Error
 	if err != nil {
 		return nil, err

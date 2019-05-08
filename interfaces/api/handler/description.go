@@ -42,7 +42,7 @@ func bindForm(body io.ReadCloser, form interface{}) error {
 }
 
 func (d *descriptionHandler) UpdateDescription(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-	descriptionRequest := new(model.DescriptionRequest)
+	descriptionRequest := model.DescriptionRequest{}
 
 	descriptionId,err := strconv.ParseInt(ps.ByName("description"),10,64)
 	if err != nil {
@@ -59,7 +59,7 @@ func (d *descriptionHandler) UpdateDescription(w http.ResponseWriter, r *http.Re
 		ErrorHandler(service.BadRequest(errors.New("bind error")), w ,r)
 		return
 	}
-	newDescription, err := d.DescriptionUseCase.DescriptionUpdateUseCase(descriptionId, descriptionRequest.Description)
+	newDescription, err := d.DescriptionUseCase.DescriptionUpdateUseCase(descriptionId, descriptionRequest)
 	err = json.NewEncoder(w).Encode(Response{resultCode: 200, Content: newDescription})
 	if err != nil {
 		ErrorHandler(err, w, r)
