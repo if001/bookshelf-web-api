@@ -6,7 +6,6 @@ import (
 	"bookshelf-web-api/domain/service"
 	"errors"
 	"github.com/jinzhu/gorm"
-	"fmt"
 )
 
 type descriptionRepository struct {
@@ -29,7 +28,6 @@ func (c *descriptionRepository) Update(id int64, descriptionRequest model.Descri
 	}
 	descriptionModel := descriptionModelForBind[0]
 
-	fmt.Println("aaaaaaaa")
 	descriptionModel.Description = descriptionRequest.Description
 	err = c.DB.Save(&descriptionModel).Error
 	if err != nil {
