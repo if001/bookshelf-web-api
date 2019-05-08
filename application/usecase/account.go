@@ -8,7 +8,7 @@ import (
 )
 
 type AccountUseCase interface {
-	AccountGetUseCase(token string) (*[]model.Account, service.RecodeNotFoundError)
+	AccountGetUseCase(token string) (*model.Account, service.RecodeNotFoundError)
 }
 
 type accountUseCase struct {
@@ -16,12 +16,12 @@ type accountUseCase struct {
 }
 
 func NewAccountUseCase(cr repository.AccountRepository) AccountUseCase {
-	return &accountUseCase{
+	return &accountUseCase {
 		AccountRepo: cr,
 	}
 }
 
-func (u *accountUseCase) AccountGetUseCase(token string) (*[]model.Account, service.RecodeNotFoundError) {
+func (u *accountUseCase) AccountGetUseCase(token string) (*model.Account, service.RecodeNotFoundError) {
 	account, err := u.AccountRepo.Get(token)
 	return account, service.RecodeNotFoundError(err)
 }

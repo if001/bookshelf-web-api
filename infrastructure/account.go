@@ -18,7 +18,7 @@ func NewAccountRepository(db *gorm.DB) repository.AccountRepository {
 }
 
 
-func (c *accountRepository) Get(token string) (*[]model.Account, error) {
+func (c *accountRepository) Get(token string) (*model.Account, error) {
 	var account []model.Account
 	var authToken model.AuthToken
 
@@ -26,17 +26,23 @@ func (c *accountRepository) Get(token string) (*[]model.Account, error) {
 		Where("token = ?",token).
 		Find(&account).
 		Error
-	if err == nil {
-		err = c.DB.Where("token = ?", token).Find(&authToken).Error
-		if err == nil {
-			if authToken.ExpireTime.After(time.Now()) {
-				// authToken.ExpireTime = time.Now().AddDate(0,3,0) // 3ヶ月伸ばす
-				// err = c.DB.Save(&authToken).Error
-				fmt.Println("expire time ok")
-			} else {
-				err = errors.New("expire time")
-			}
-		}
+	if err != nil {
+		return nil, err
 	}
-	return &account, err
+	err = c.DB.Where("token = ?", token).Find(&authToken).Error
+	if err != nil {
+		return nil, err
+	}
+
+	if authToken.ExpireTime.After(time.Now()) {
+		// authToken.ExpireTime = time.Now().AddDate(0,3,0) // 3ヶ月伸ばす
+		// err = c.DB.Save(&authToken).Error
+		fmt.Println("expire time ok")
+	} else {
+		return nil, errors.New("expire time")
+	}
+	if len(account) == 0 {
+		return nil, errors.New("record not found")
+	}
+	return &account[0], err
 }

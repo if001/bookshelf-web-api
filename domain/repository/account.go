@@ -5,5 +5,5 @@ import (
 )
 
 type AccountRepository interface {
-	Get(token string) (*[]model.Account, error)
+	Get(token string) (*model.Account, error)
 }

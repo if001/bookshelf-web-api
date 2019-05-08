@@ -31,18 +31,17 @@ func (a *accountHandler) AuthMiddleware(next httprouter.Handle) httprouter.Handl
 		token := r.URL.Query().Get("token")
 		if token == "" {
 			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
-		} else {
-			account, err := a.AccountUseCase.AccountGetUseCase(token)
-			if err != nil {
-				http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
-				log.Println(err)
-			} else {
-				ctx := context.WithValue(r.Context(),"account",account)
-				r = r.WithContext(ctx)
-				fmt.Println("end")
-				next(w, r, ps)
-			}
+			return
 		}
-
+		account, err := a.AccountUseCase.AccountGetUseCase(token)
+		if err != nil {
+			http.Error(w, http.StatusText(http.StatusUnauthorized), http.StatusUnauthorized)
+			log.Println(err)
+			return
+		}
+		ctx := context.WithValue(r.Context(),"account",account)
+		r = r.WithContext(ctx)
+		fmt.Println("end")
+		next(w, r, ps)
 	}
 }
