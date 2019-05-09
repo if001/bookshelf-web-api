@@ -17,7 +17,7 @@ func Route(h handler.ApiHandler) http.Handler {
 	router.POST("/books", middlewares.Then(h.CreateBook))
 
 	router.GET("/book/:book", middlewares.Then(h.FindBook))
-	//router.PUT("/book/:book", middlewares.Then(h.UpdateBook))
+	router.PUT("/book/:book", middlewares.Then(h.UpdateBook))
 	//// router.DELETE("/book/:book", middlewares.Then(h.GetBooks))
 	//
 	//router.GET("/book/:book/description", middlewares.Then(h.FindDescription))

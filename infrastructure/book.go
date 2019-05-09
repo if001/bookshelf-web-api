@@ -8,6 +8,7 @@ import (
 	"database/sql"
 	"github.com/go-sql-driver/mysql"
 	"errors"
+	"fmt"
 )
 
 // TODO DBしかうけとってないしリポジトリまとめたほうがよい？
@@ -97,7 +98,7 @@ func (r *bookRepository) CreateBook(book model.Book, account model.Account) (*mo
 			tx.Rollback()
 		}
 	}()
-
+	defer tx.Close()
 	var authorId = sql.NullInt64{ Valid:false }
 	if book.Author != nil {
 		var authorTable = tables.Author{}
@@ -192,6 +193,7 @@ func (r *bookRepository) FindBook(id int64, account model.Account) (*model.Book,
 	if err != nil {
 		return nil, err
 	}
+
 	for i := range categoriesTable{
 		category := model.Category{}
 		category.Fill(
@@ -205,7 +207,6 @@ func (r *bookRepository) FindBook(id int64, account model.Account) (*model.Book,
 			category,
 		)
 	}
-
 	err = r.DB.Where("book_id = ?",bookTable[0].ID).Find(&descriptionsTable).Error
 	if err != nil {
 		return nil, err
@@ -297,68 +298,108 @@ func createCategories(tx *gorm.DB, categories []tables.Category) error {
 	return nil
 }
 
+func (r *bookRepository) UpdateBook(book model.Book, account model.Account) (*model.Book, error) {
+	ptrue := &[]bool{true}[0]
+	pfalse := &[]bool{false}[0]
 
-//func (r *bookRepository) UpdateBook(id int64, bookRequest model.BookRequest, account model.Account) (*model.Book, service.RecodeNotFoundError) {
-//	var authorModel []model.Author
-//
-//	err := r.DB.Where("name = ?",bookRequest.Author).Find(&authorModel).Error
-//	if err != nil {
-//		return &model.Book{}, err
-//	}
-//
-//	tx := r.DB.Begin()
-//	defer func() {
-//		err := recover()
-//		if err != nil {
-//			tx.Rollback()
-//		}
-//	}()
-//	var authorId = sql.NullInt64{Int64:0, Valid:true }
-//	if len(authorModel) == 0 {
-//		newAuthor, err := createAuthor(r, tx, bookRequest.Author)
-//		if err != nil {
-//			tx.Rollback()
-//			return nil, err
-//		}
-//		authorId = sql.NullInt64{Int64:newAuthor.ID, Valid:true }
-//	} else {
-//		authorId = sql.NullInt64{Int64:authorModel[0].ID, Valid:true }
-//	}
-//
-//	err = createCategories(r, tx, bookRequest.Categories)
-//	if err != nil {
-//		tx.Rollback()
-//		return nil, err
-//	}
-//
-//	books := []model.Book{}
-//	err = r.DB.Where("id = ?", id).Find(&books).Error
-//	if err != nil {
-//		tx.Rollback()
-//		return nil, err
-//	}
-//	if len(books) == 0 {
-//		tx.Rollback()
-//		return nil, errors.New("record not found")
-//	}
-//	book := books[0]
-//
-//	if bookRequest.Title != "" {
-//		book.Title = bookRequest.Title
-//	}
-//	book.AuthorID = authorId
-//	if bookRequest.PrevBookId != 0 {
-//		book.PrevBookID.Int64 = bookRequest.PrevBookId
-//	}
-//	if bookRequest.NextBookId != 0 {
-//		book.NextBookID.Int64 = bookRequest.NextBookId
-//	}
-//	err = tx.Create(&book).Error
-//	if err != nil {
-//			tx.Rollback()
-//		return nil, err
-//	}
-//
-//	err = tx.Commit().Error
-//	return &book, err
-//}
+
+	tx := r.DB.Begin()
+	defer func() {
+		err := recover()
+		if err != nil {
+			tx.Rollback()
+		}
+	}()
+
+	bookTable := []tables.Book{}
+	err := r.DB.Where("id = ?", book.ID).Find(&bookTable).Error
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+	if len(bookTable) == 0 {
+		tx.Rollback()
+		return nil, errors.New("record not found")
+	}
+
+	authorId := sql.NullInt64{ Valid:false }
+	if book.Author != nil {
+		authorTable := []tables.Author{}
+		err := r.DB.Where("id = ?", book.Author.ID).Find(&authorTable).Error
+		if err != nil {
+			return nil, err
+		}
+		if len(authorTable) == 0 {
+			return nil, errors.New("record not found")
+		}
+		authorId = sql.NullInt64{ Int64:book.Author.ID, Valid: true }
+	}
+
+	// すでに存在するリレーションを全て削除して、新たに作り直す
+	// TODO あとで書き直す
+	deleteBookCategoriesTable := []tables.BookCategory{}
+	err = r.DB.Where("book_id = ?", book.ID).Find(&deleteBookCategoriesTable).Error
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	for i := range deleteBookCategoriesTable {
+		deleteBookCategoriesTable[i].Status = pfalse
+	}
+
+	if len(deleteBookCategoriesTable) != 0 {
+		err = tx.Save(&deleteBookCategoriesTable).Error
+		if err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+	}
+
+	newBookCategoriesTable := []tables.BookCategory{}
+	for i := range book.Categories {
+		if book.Categories[i].ID != 0 {
+			bookCategory := tables.BookCategory{}
+			bookCategory.BookID = book.ID
+			bookCategory.CategoryID = book.Categories[i].ID
+			bookCategory.Status = ptrue
+			newBookCategoriesTable = append(
+				newBookCategoriesTable,
+				bookCategory,
+			)
+		}
+	}
+	fmt.Println("aaa",newBookCategoriesTable)
+	//TODO 現状Bulk Insertできない、できるようになったら対応する
+	for i := range newBookCategoriesTable {
+		fmt.Println("aaa",newBookCategoriesTable[i])
+		err = tx.Create(&newBookCategoriesTable[i]).Error
+		if err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+	}
+
+	if book.Name != "" {
+		bookTable[0].Title = book.Name
+	}
+	bookTable[0].AuthorID = authorId
+	bookTable[0].StartAt = mysql.NullTime{Valid:false }
+	bookTable[0].EndAt = mysql.NullTime{Valid:false }
+	bookTable[0].NextBookID = sql.NullInt64{Int64:book.NextBookID, Valid:book.NextBookID != 0}
+	bookTable[0].PrevBookID = sql.NullInt64{Int64:book.PrevBookID, Valid:book.PrevBookID != 0}
+
+	err = tx.Save(&bookTable[0]).Error
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	err = tx.Commit().Error
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	return &book, nil
+}

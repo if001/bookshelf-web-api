@@ -5,6 +5,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"bookshelf-web-api/domain/model"
 	"bookshelf-web-api/infrastructure/tables"
+	"errors"
 )
 
 type authorRepository struct {
@@ -30,4 +31,24 @@ func (r *authorRepository) IsExistAuthor(author *model.Author) (bool, error) {
 	} else {
 		return true, nil
 	}
+}
+
+func (r *authorRepository) GetAuthor(id int64) (*model.Author, error) {
+	authorTable := []tables.Author{}
+	err := r.DB.Where("id = ?",id).Find(&authorTable).Error
+	if err != nil {
+		return nil, err
+	}
+	if len(authorTable) == 0 {
+		return nil, errors.New("record not found")
+	}
+
+	author := model.Author{}
+	author.Fill(
+		authorTable[0].ID,
+		authorTable[0].Name,
+		authorTable[0].CreatedAt,
+		authorTable[0].UpdatedAt,
+	)
+	return &author, nil
 }

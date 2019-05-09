@@ -6,6 +6,7 @@ import (
 	"bookshelf-web-api/domain/model"
 	"bookshelf-web-api/domain/service"
 	"bookshelf-web-api/infrastructure/tables"
+	"errors"
 )
 
 type categoryRepository struct {
@@ -21,6 +22,19 @@ func (r *categoryRepository) Get() (*model.Category, service.RecodeNotFoundError
 	var err  = r.DB.Find(&category).Error
 	return &category, err
 }
+
+func (r *categoryRepository) GetByIds(categoriesId []int64) (*[]model.Category, service.RecodeNotFoundError) {
+	var categories []model.Category
+	err := r.DB.Find(&categories, "id IN (?)", categoriesId).Error
+	if err != nil {
+		return nil, err
+	}
+	if len(categories) == 0 {
+		return nil, errors.New("record not found")
+	}
+	return &categories, nil
+}
+
 
 func (r *categoryRepository) GetByBookId(bookId int64) (*[]model.Category, error) {
 	var categoriesTable  []tables.Category

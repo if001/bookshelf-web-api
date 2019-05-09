@@ -2,8 +2,8 @@ package form
 
 type BookRequest struct {
 	Title string
-	Author string
-	Categories []string // default null
+	AuthorId int64
+	CategoryIds []int64
 	PrevBookId int64 // default 0
 	NextBookId int64 // default 0
 }
