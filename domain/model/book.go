@@ -14,12 +14,12 @@ type Book struct {
 type BookBaseInfo struct {
 	Name string
 	Author *Author
-	PublishedAt time.Time
+	PublishedAt mysql.NullTime
 	Publisher string
 }
 
 type BookInfo struct {
-	AccountId string
+	AccountId int64
 	StartAt mysql.NullTime
 	EndAt mysql.NullTime
 	NextBookID  int64
@@ -38,6 +38,26 @@ func (b *BookInfo) GetReadState() ReadState {
 		return nil
 	}
 }
+func (b *Book) Fill(id int64, name string, author *Author,
+	publishAt mysql.NullTime, publisher string,
+	accountId int64, startAt mysql.NullTime, endAt mysql.NullTime,
+	nextBookId int64, prevBookId int64, descriptions []Description, categories []Category,
+	createdAt time.Time, updatedAt time.Time) {
+	b.ID = id
+	b.Name = name
+	b.Author = author
+	b.PublishedAt = publishAt
+	b.StartAt = startAt
+	b.EndAt = endAt
+	b.Publisher = publisher
+	b.NextBookID = nextBookId
+	b.PrevBookID = prevBookId
+	b.Descriptions = descriptions
+	b.Categories = categories
+	b.CreatedAt = createdAt
+	b.UpdatedAt = updatedAt
+}
+
 
 type Category struct {
 	Base

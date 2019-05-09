@@ -7,6 +7,7 @@ import (
 	"bookshelf-web-api/infrastructure/tables"
 	"database/sql"
 	"github.com/go-sql-driver/mysql"
+	"errors"
 )
 
 // TODO DBしかうけとってないしリポジトリまとめたほうがよい？
@@ -150,42 +151,100 @@ func (r *bookRepository) CreateBook(book model.Book, account model.Account) (*mo
 
 
 
-//func (r *bookRepository) FindBook(id int64, account model.Account) (*[]model.Book, service.RecodeNotFoundError) {
-//	var books []model.Book
-//	var categoriesModel []model.Category
-//	var descriptions []model.Description
-//
-//	err := r.DB.Where("account_id = ?", account.ID).Where("id = ?",id).Find(&books).Error
-//	if err != nil {
-//		return &[]model.Book{}, err
-//	}
-//	for i := range books {
-//		if books[i].AuthorID.Int64 != 0 {
-//			err = r.DB.Model(books[i]).Related(&books[i].Author,"Author").Error
-//			if err != nil {
-//				return &[]model.Book{}, err
-//			}
-//		} else {
-//			books[i].Author = model.Author{}
-//		}
-//		err = r.DB.Joins("JOIN books_categories ON books_categories.category_id = categories.id").
-//			Where("book_id = ?", books[i].ID).
-//			Find(&categoriesModel).
-//			Error
-//		if err != nil {
-//			return &[]model.Book{}, err
-//		}
-//		books[i].Categories = categoriesModel
-//
-//		err = r.DB.Where("book_id = ?",books[i].ID).Find(&descriptions).Error
-//		if err != nil {
-//			return &[]model.Book{}, err
-//		}
-//		books[i].Description = descriptions
-//	}
-//	return &books, err
-//}
-//
+func (r *bookRepository) FindBook(id int64, account model.Account) (*model.Book, error) {
+	bookTable := []tables.Book{}
+	authorTable := []tables.Author{}
+	categoriesTable := []tables.Category{}
+	descriptionsTable := []tables.Description{}
+	authorModel := model.Author{}
+	categoriesModel := []model.Category{}
+	descriptionsModel := []model.Description{}
+
+	err := r.DB.Where("account_id = ?", account.ID).Where("id = ?",id).Find(&bookTable).Error
+	if err != nil {
+		return nil, err
+	}
+	if len(bookTable) == 0 {
+		return nil, errors.New("table not found")
+	}
+
+	err = r.DB.Joins("JOIN books ON books.author_id = author.id").
+		Where("books.id = ?", bookTable[0].ID).
+		Find(&authorTable).
+		Error
+	if err != nil {
+		return nil, err
+	}
+	if len(authorTable) != 0 {
+		authorModel.Fill(
+			authorTable[0].ID,
+			authorTable[0].Name,
+			authorTable[0].CreatedAt,
+			authorTable[0].UpdatedAt,
+		)
+	} else {
+		authorModel = model.Author{}
+	}
+	err = r.DB.Joins("JOIN books_categories ON books_categories.category_id = categories.id").
+		Where("book_id = ?", bookTable[0].ID).
+		Find(&categoriesTable).
+		Error
+	if err != nil {
+		return nil, err
+	}
+	for i := range categoriesTable{
+		category := model.Category{}
+		category.Fill(
+			categoriesTable[i].ID,
+			categoriesTable[i].Name,
+			categoriesTable[i].CreatedAt,
+			categoriesTable[i].UpdatedAt,
+		)
+		categoriesModel = append(
+			categoriesModel,
+			category,
+		)
+	}
+
+	err = r.DB.Where("book_id = ?",bookTable[0].ID).Find(&descriptionsTable).Error
+	if err != nil {
+		return nil, err
+	}
+	bookTable[0].Description = descriptionsTable
+	for i := range descriptionsTable{
+		description := model.Description{}
+		description.Fill(
+			descriptionsTable[i].ID,
+			descriptionsTable[i].Description,
+			descriptionsTable[i].CreatedAt,
+			descriptionsTable[i].UpdatedAt,
+		)
+		descriptionsModel = append(
+			descriptionsModel,
+			description,
+		)
+	}
+	book := model.Book{}
+
+	book.Fill(
+		bookTable[0].ID,
+		bookTable[0].Title,
+		&authorModel,
+		bookTable[0].PublishedAt,
+		"publisher", //TODO あとでテーブルにからむつくる
+		account.ID,
+		bookTable[0].StartAt,
+		bookTable[0].EndAt,
+		bookTable[0].NextBookID.Int64,
+		bookTable[0].PrevBookID.Int64,
+		descriptionsModel,
+		categoriesModel,
+		bookTable[0].CreatedAt,
+		bookTable[0].UpdatedAt,
+	)
+	return &book, err
+}
+
 //func (c *bookRepository) FindDescriptions(id int64) (*[]model.Description, service.RecodeNotFoundError) {
 //	var descriptions = []model.Description{}
 //

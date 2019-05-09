@@ -3,15 +3,14 @@ package usecase
 import (
 	"bookshelf-web-api/domain/model"
 	"bookshelf-web-api/domain/repository"
-	"bookshelf-web-api/domain/service"
 	"bookshelf-web-api/application/usecase/form"
 	"encoding/json"
 )
 
 type BookUseCase interface {
-	BookListUseCase(account model.Account) (*[]model.Book, service.RecodeNotFoundError)
-	//BookFindUseCase(id int64, account model.Account) (*[]model.Book, service.RecodeNotFoundError)
-	CreateBook(bookRequest model.Book, account model.Account) (*model.Book, service.RecodeNotFoundError)
+	BookListUseCase(account model.Account) (*[]model.Book, error)
+	CreateBook(bookRequest model.Book, account model.Account) (*model.Book, error)
+	BookFindUseCase(id int64, account model.Account) (*model.Book, error)
 	//UpdateBook(id int64, bookRequest model.BookRequest, account model.Account) (*model.Book, service.RecodeNotFoundError)
 	//DescriptionFindUseCase(id int64) (*[]model.Description, service.RecodeNotFoundError)
 	//DescriptionCreateUseCase(id int64, description string) (*model.Description, service.RecodeNotFoundError)
@@ -32,14 +31,20 @@ func NewBookUseCase(bookR repository.BookRepository, authorR repository.AuthorRe
 	}
 }
 
-func (u *bookUseCase) BookListUseCase(account model.Account) (*[]model.Book, service.RecodeNotFoundError) {
+func (u *bookUseCase) BookListUseCase(account model.Account) (*[]model.Book, error) {
 	books, err := u.BookR.GetBooks(account.ID)
-	return books, service.RecodeNotFoundError(err)
+	if err != nil {
+		return nil, err
+	}
+	return books, nil
 }
 
-func (u *bookUseCase) CreateBook(book model.Book, account model.Account) (*model.Book, service.RecodeNotFoundError) {
+func (u *bookUseCase) CreateBook(book model.Book, account model.Account) (*model.Book, error) {
 	newBook, err := u.BookR.CreateBook(book, account)
-	return newBook, service.RecodeNotFoundError(err)
+	if err != nil {
+		return nil, err
+	}
+	return newBook, nil
 }
 
 
@@ -90,11 +95,14 @@ func (u *bookUseCase) BookRequestBind(body []byte) (*model.Book, error) {
 	return &book, nil
 }
 
+func (u *bookUseCase) BookFindUseCase(id int64, account model.Account) (*model.Book, error) {
+	book, err := u.BookR.FindBook(id, account)
+	if err != nil {
+		return nil, err
+	}
+	return book, nil
+}
 
-//func (u *bookUseCase) BookFindUseCase(id int64, account model.Account) (*[]model.Book, service.RecodeNotFoundError) {
-//	book, err := u.BookRepo.FindBook(id, account)
-//	return book, service.RecodeNotFoundError(err)
-//}
 //func (u *bookUseCase) DescriptionFindUseCase(id int64) (*[]model.Description, service.RecodeNotFoundError) {
 //	book, err := u.BookRepo.FindDescriptions(id)
 //	return book, service.RecodeNotFoundError(err)

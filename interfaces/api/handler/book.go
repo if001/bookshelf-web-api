@@ -6,11 +6,12 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"io/ioutil"
+	"strconv"
 )
 
 type BookHandler interface {
 	GetBooks(w http.ResponseWriter, r *http.Request, _ httprouter.Params)
-	//FindBook(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
+	FindBook(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	CreateBook(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	//UpdateBook(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	//FindDescription(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
@@ -79,26 +80,30 @@ func (b *bookHandler) CreateBook(w http.ResponseWriter, r *http.Request, _ httpr
 
 
 
-//
-//func (b *bookHandler) FindBook(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-//	bookId,err := strconv.ParseInt(ps.ByName("book"),10,64)
-//	account := r.Context().Value("account").(*model.Account)
-//	if err != nil {
-//		ErrorHandler(service.InternalServerError(err), w ,r)
-//		return
-//	}
-//	book, err := b.BookUseCase.BookFindUseCase(bookId, *account)
-//	if err != nil {
-//		ErrorHandler(err, w ,r)
-//		return
-//	}
-//	err = json.NewEncoder(w).Encode(Response{resultCode:200, Content:book})
-//	if err != nil {
-//		ErrorHandler(err, w ,r)
-//		return
-//	}
-//}
-//
+
+func (b *bookHandler) FindBook(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	bookId,err := strconv.ParseInt(ps.ByName("book"),10,64)
+	if err != nil {
+		ErrorHandler(err, w ,r)
+		return
+	}
+	account, err := b.AccountUseCase.GetAccountUseCase(r.Context())
+	if err != nil {
+		ErrorHandler(err, w ,r)
+		return
+	}
+	book, err := b.BookUseCase.BookFindUseCase(bookId, *account)
+	if err != nil {
+		ErrorHandler(err, w ,r)
+		return
+	}
+	err = json.NewEncoder(w).Encode(Response{resultCode:200, Content:book})
+	if err != nil {
+		ErrorHandler(err, w ,r)
+		return
+	}
+}
+
 //
 //
 //func (b *bookHandler) UpdateBook(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
