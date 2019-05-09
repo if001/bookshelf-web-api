@@ -3,7 +3,7 @@ package model
 import "time"
 
 type Base struct {
-	Id int64
+	ID int64
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

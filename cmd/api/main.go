@@ -20,15 +20,16 @@ func main() {
 	bookR := infrastructure.NewBookRepository(db)
 	accountR := infrastructure.NewAccountRepository(db)
 	authorR := infrastructure.NewAuthorRepository(db)
+	categoryR := infrastructure.NewCategoryRepository(db)
 	dr := infrastructure.NewDescriptionRepository(db)
 
 	categoryUseCase := usecase.NewCategoryUseCase(cr)
-	bookUseCase := usecase.NewBookUseCase(bookR, authorR, accountR)
+	bookUseCase := usecase.NewBookUseCase(bookR, authorR, categoryR)
 	accountUseCase := usecase.NewAccountUseCase(accountR)
 	descriptionUseCase := usecase.NewDescriptionUseCase(dr)
 
 	uh := handler.NewCategoryHandler(categoryUseCase)
-	bh := handler.NewBookHandler(bookUseCase)
+	bh := handler.NewBookHandler(bookUseCase, accountUseCase)
 	ah := handler.NewAccountHandler(accountUseCase)
 	dh := handler.NewDescriptionHandler(descriptionUseCase)
 

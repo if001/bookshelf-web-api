@@ -8,6 +8,7 @@ import (
 	"bookshelf-web-api/infrastructure/tables"
 	"time"
 	"fmt"
+	"bookshelf-web-api/domain/model"
 )
 
 type accountRepository struct {
@@ -18,8 +19,8 @@ func NewAccountRepository(db *gorm.DB) repository.AccountRepository {
 	return &accountRepository{ DB : db }
 }
 
-func (c *accountRepository) GetAccount(ctx context.Context) (*tables.Account, error) {
-	account,ok := ctx.Value("account").(tables.Account)
+func (c *accountRepository) GetAccount(ctx context.Context) (*model.Account, error) {
+	account,ok := ctx.Value("account").(model.Account)
 	if ok {
 		return &account, nil
 	} else {
@@ -29,12 +30,12 @@ func (c *accountRepository) GetAccount(ctx context.Context) (*tables.Account, er
 
 
 func (c *accountRepository) SetAccount(token string, ctx *context.Context) (error) {
-	var account []tables.Account
+	var accountTable []tables.Account
 	var authToken tables.AuthToken
 
 	err := c.DB.Joins("JOIN auth_token ON auth_token.account_id = accounts.id").
 		Where("token = ?",token).
-		Find(&account).
+		Find(&accountTable).
 		Error
 	if err != nil {
 		return err
@@ -51,9 +52,17 @@ func (c *accountRepository) SetAccount(token string, ctx *context.Context) (erro
 	} else {
 		return errors.New("expire time")
 	}
-	if len(account) == 0 {
+	if len(accountTable) == 0 {
 		return errors.New("record not found")
 	}
-	*ctx = context.WithValue(*ctx, "account", account[0])
+
+	account := model.Account{}
+	account.ID = accountTable[0].ID
+	account.Name = "" // todo ひとまず使わないので空
+	account.UUID = accountTable[0].UUID
+	account.CreatedAt = accountTable[0].CreatedAt
+	account.UpdatedAt = accountTable[0].UpdatedAt
+
+	*ctx = context.WithValue(*ctx, "account", account)
 	return nil
 }

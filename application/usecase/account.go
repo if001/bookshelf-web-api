@@ -4,10 +4,11 @@ package usecase
 import (
 	"bookshelf-web-api/domain/repository"
 	"context"
+	"bookshelf-web-api/domain/model"
 )
 
 type AccountUseCase interface {
-	//AccountGetUseCase(token string) (*model.Account, service.RecodeNotFoundError)
+	GetAccountUseCase(ctx context.Context) (*model.Account, error)
 	// AccountGetUseCase(token string) (*tables.Account, error)
 	SetAccountToCtxByToken(token string, ctx *context.Context) error
 }
@@ -21,14 +22,14 @@ func NewAccountUseCase(cr repository.AccountRepository) AccountUseCase {
 		AccountRepo: cr,
 	}
 }
-//
-//func (u *accountUseCase) AccountGetUseCase(token string) (*tables.Account, error) {
-//	account, err := u.AccountRepo.
-//	if err != nil {
-//		return nil, err
-//	}
-//	return account, nil
-//}
+
+func (u *accountUseCase) GetAccountUseCase(ctx context.Context) (*model.Account, error) {
+	account, err := u.AccountRepo.GetAccount(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return account, nil
+}
 
 func (u *accountUseCase) SetAccountToCtxByToken(token string, ctx *context.Context) error {
 	err := u.AccountRepo.SetAccount(token, ctx)

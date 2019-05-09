@@ -5,13 +5,13 @@ import (
 	"encoding/json"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
-	"fmt"
+	"io/ioutil"
 )
 
 type BookHandler interface {
 	GetBooks(w http.ResponseWriter, r *http.Request, _ httprouter.Params)
 	//FindBook(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
-	//CreateBook(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
+	CreateBook(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	//UpdateBook(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	//FindDescription(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	//CreateDescription(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
@@ -19,18 +19,23 @@ type BookHandler interface {
 
 type bookHandler struct {
 	BookUseCase usecase.BookUseCase
+	AccountUseCase usecase.AccountUseCase
 }
 
-func NewBookHandler(b usecase.BookUseCase) BookHandler {
+func NewBookHandler(b usecase.BookUseCase, a usecase.AccountUseCase) BookHandler {
 	return &bookHandler{
 		BookUseCase: b,
+		AccountUseCase: a,
 	}
 }
 
 func (b *bookHandler) GetBooks(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	ctx := r.Context()
-	fmt.Println("getbooks handler")
-	books, err := b.BookUseCase.BookListUseCase(ctx)
+	account, err := b.AccountUseCase.GetAccountUseCase(r.Context())
+	if err != nil {
+		ErrorHandler(err, w ,r)
+		return
+	}
+	books, err := b.BookUseCase.BookListUseCase(*account)
 	if err != nil {
 		ErrorHandler(err, w ,r)
 		return
@@ -41,6 +46,39 @@ func (b *bookHandler) GetBooks(w http.ResponseWriter, r *http.Request, _ httprou
 		return
 	}
 }
+
+func (b *bookHandler) CreateBook(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	defer r.Body.Close()
+	account, err := b.AccountUseCase.GetAccountUseCase(r.Context())
+	if err != nil {
+		ErrorHandler(err, w ,r)
+		return
+	}
+	body, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		ErrorHandler(err, w ,r)
+		return
+	}
+	book, err := b.BookUseCase.BookRequestBind(body)
+	if err != nil {
+		ErrorHandler(err, w ,r)
+		return
+	}
+
+	newBook, err := b.BookUseCase.CreateBook(*book, *account)
+	if err != nil {
+		ErrorHandler(err, w ,r)
+		return
+	}
+	err = json.NewEncoder(w).Encode(Response{resultCode:200, Content:newBook})
+	if err != nil {
+		ErrorHandler(err, w ,r)
+		return
+	}
+}
+
+
+
 //
 //func (b *bookHandler) FindBook(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 //	bookId,err := strconv.ParseInt(ps.ByName("book"),10,64)
@@ -62,28 +100,6 @@ func (b *bookHandler) GetBooks(w http.ResponseWriter, r *http.Request, _ httprou
 //}
 //
 //
-//func (b *bookHandler) CreateBook(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-//	bookRequest := model.BookRequest{}
-//	defer r.Body.Close()
-//	account := r.Context().Value("account").(*model.Account)
-//
-//	body, err := ioutil.ReadAll(r.Body)
-//	if err != nil {
-//		ErrorHandler(service.BadRequest(err), w ,r)
-//		return
-//	}
-//	err = json.Unmarshal(body, &bookRequest)
-//	if err != nil {
-//		ErrorHandler(service.BadRequest(err), w ,r)
-//		return
-//	}
-//	newBook, err := b.BookUseCase.CreateBook(bookRequest, *account)
-//	err = json.NewEncoder(w).Encode(Response{resultCode:200, Content:newBook})
-//	if err != nil {
-//		ErrorHandler(err, w ,r)
-//		return
-//	}
-//}
 //
 //func (b *bookHandler) UpdateBook(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 //	bookRequest := model.BookRequest{}

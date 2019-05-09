@@ -45,3 +45,23 @@ func (r *categoryRepository) GetByBookId(bookId int64) (*[]model.Category, error
 	return &categoryModels, err
 }
 
+func (r *categoryRepository) GetNotExistCategories(categories []model.Category) (*[]model.Category, error) {
+	notExistCategories := []model.Category{}
+	bindCategory := []model.Category{}
+	for i := range categories {
+		err := r.DB.Where("name = ?",categories[i].Name).Find(&bindCategory).Error
+		if err != nil {
+			return nil, err
+		}
+		if len(bindCategory) == 0 {
+			notExistCategory := model.Category{}
+			notExistCategory.Name = categories[i].Name
+			notExistCategories = append(
+				notExistCategories,
+				notExistCategory,
+			)
+		}
+	}
+	return &notExistCategories, nil
+}
+

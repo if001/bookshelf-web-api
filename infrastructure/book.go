@@ -5,6 +5,8 @@ import (
 	"bookshelf-web-api/domain/repository"
 	"github.com/jinzhu/gorm"
 	"bookshelf-web-api/infrastructure/tables"
+	"database/sql"
+	"github.com/go-sql-driver/mysql"
 )
 
 // TODO DBしかうけとってないしリポジトリまとめたほうがよい？
@@ -44,7 +46,7 @@ func (r *bookRepository) GetBooks(accountId int64) (*[]model.Book, error) {
 				bookTables[i].Author.UpdatedAt,
 			)
 		}
-		bookModel.Author = authorModel
+		bookModel.Author = &authorModel
 
 		err = r.DB.Joins("JOIN books_categories ON books_categories.category_id = categories.id").
 			Where("book_id = ?", bookTables[i].ID).
@@ -85,6 +87,68 @@ func (r *bookRepository) GetBooks(accountId int64) (*[]model.Book, error) {
 	}
 	return &bookModels, err
 }
+
+func (r *bookRepository) CreateBook(book model.Book, account model.Account) (*model.Book, error) {
+	tx := r.DB.Begin()
+	defer func() {
+		err := recover()
+		if err != nil {
+			tx.Rollback()
+		}
+	}()
+
+	var authorId = sql.NullInt64{ Valid:false }
+	if book.Author != nil {
+		var authorTable = tables.Author{}
+		authorTable.Name = book.Author.Name
+		newAuthor, err := createAuthor(tx, authorTable)
+		if err != nil {
+			tx.Rollback()
+			return nil, err
+		}
+		authorId = sql.NullInt64{Int64:newAuthor.ID }
+	}
+	categoriesTable := []tables.Category{}
+	for i := range book.Categories {
+		categoryTable := tables.Category{}
+		categoryTable.Name = book.Categories[i].Name
+		categoriesTable = append(
+			categoriesTable,
+			categoryTable,
+		)
+	}
+
+	err := createCategories(tx, categoriesTable)
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	bookTable := tables.Book{}
+	bookTable.AccountID = account.ID
+	bookTable.Title = book.Name
+	bookTable.AuthorID = authorId
+	bookTable.PublishedAt = mysql.NullTime{Valid:false }
+	bookTable.StartAt = mysql.NullTime{Valid:false }
+	bookTable.EndAt = mysql.NullTime{Valid:false }
+	bookTable.NextBookID = sql.NullInt64{Int64:book.NextBookID, Valid:book.NextBookID != 0}
+	bookTable.PrevBookID = sql.NullInt64{Int64:book.PrevBookID, Valid:book.PrevBookID != 0}
+
+	err = tx.Create(&bookTable).Error
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+	err = tx.Commit().Error
+	if err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+	return &book, nil
+}
+
+
+
 
 //func (r *bookRepository) FindBook(id int64, account model.Account) (*[]model.Book, service.RecodeNotFoundError) {
 //	var books []model.Book
@@ -151,89 +215,30 @@ func (r *bookRepository) GetBooks(accountId int64) (*[]model.Book, error) {
 //}
 //
 //
-//func createAuthor(r *bookRepository, tx *gorm.DB, author string) (*model.Author, error) {
-//	var newAuthor model.Author
-//	newAuthor.Name = author
-//	err := tx.Create(&newAuthor).Error
-//	if err != nil {
-//		return nil, err
-//	}
-//	return &newAuthor, nil
-//}
-//
-//func createCategories(r *bookRepository, tx *gorm.DB, categories []string) error {
-//	var categoriesModel []model.Category
-//
-//	for i := range categories {
-//		err := r.DB.Where("name = ?", categories[i]).Find(&categoriesModel).Error
-//		if err != nil {
-//			return err
-//		}
-//		if len(categoriesModel) == 0 {
-//			newCategory := model.Category{}
-//			newCategory.Name = categories[i]
-//			err = tx.Create(&newCategory).Error
-//			if err != nil {
-//				return err
-//			}
-//		}
-//	}
-//	return nil
-//}
-//
-//
-//func (r *bookRepository) CreateBook(bookRequest model.BookRequest, account model.Account) (*model.Book, service.RecodeNotFoundError) {
-//	var authorModel []model.Author
-//
-//	err := r.DB.Where("name = ?",bookRequest.Author).Find(&authorModel).Error
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	tx := r.DB.Begin()
-//	defer func() {
-//		err := recover()
-//		if err != nil {
-//			tx.Rollback()
-//		}
-//	}()
-//
-//	var authorId = sql.NullInt64{Int64:0, Valid:true }
-//	if len(authorModel) == 0 {
-//		newAuthor, err := createAuthor(r, tx, bookRequest.Author)
-//		if err != nil {
-//			tx.Rollback()
-//			return nil, err
-//		}
-//		authorId = sql.NullInt64{Int64:newAuthor.ID, Valid:true }
-//	} else {
-//		authorId = sql.NullInt64{Int64:authorModel[0].ID, Valid:true }
-//	}
-//
-//	err = createCategories(r, tx, bookRequest.Categories)
-//	if err != nil {
-//		tx.Rollback()
-//		return nil, err
-//	}
-//
-//	now := time.Now()
-//	book := model.Book{}
-//	book.AccountID = account.ID
-//	book.Title = bookRequest.Title
-//	book.AuthorID = authorId
-//	book.PublishedAt = mysql.NullTime{Time:now, Valid:false }
-//	book.StartAt = mysql.NullTime{Time:now, Valid:false }
-//	book.EndAt = mysql.NullTime{Time:now, Valid:false }
-//
-//	err = tx.Create(&book).Error
-//	if err != nil {
-//		tx.Rollback()
-//		return nil, err
-//	}
-//	err = tx.Commit().Error
-//	return &book, err
-//}
-//
+func createAuthor(tx *gorm.DB, authorTable tables.Author) (*model.Author, error) {
+	err := tx.Create(&authorTable).Error
+	if err != nil {
+		return nil, err
+	}
+	newAuthor := model.Author{}
+	newAuthor.ID = authorTable.ID
+	newAuthor.Name = authorTable.Name
+	newAuthor.CreatedAt = authorTable.CreatedAt
+	newAuthor.UpdatedAt = authorTable.UpdatedAt
+	return &newAuthor, nil
+}
+
+func createCategories(tx *gorm.DB, categories []tables.Category) error {
+	for i := range categories {
+		err := tx.Create(&categories[i]).Error
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+
 //func (r *bookRepository) UpdateBook(id int64, bookRequest model.BookRequest, account model.Account) (*model.Book, service.RecodeNotFoundError) {
 //	var authorModel []model.Author
 //

@@ -13,7 +13,7 @@ type Book struct {
 
 type BookBaseInfo struct {
 	Name string
-	Author Author
+	Author *Author
 	PublishedAt time.Time
 	Publisher string
 }
@@ -44,7 +44,7 @@ type Category struct {
 	Name string
 }
 func (a *Category) Fill(id int64, name string, createdAt time.Time, updatedAt time.Time) {
-	a.Id = id
+	a.ID = id
 	a.Name = name
 	a.CreatedAt = createdAt
 	a.UpdatedAt = updatedAt
@@ -55,7 +55,7 @@ type Author struct {
 	Name string
 }
 func (a *Author) Fill(id int64, name string, createdAt time.Time, updatedAt time.Time) {
-	a.Id = id
+	a.ID = id
 	a.Name = name
 	a.CreatedAt = createdAt
 	a.UpdatedAt = updatedAt
@@ -66,7 +66,7 @@ type Description struct {
 	Content string
 }
 func (a *Description) Fill(id int64, content string, createdAt time.Time, updatedAt time.Time) {
-	a.Id = id
+	a.ID = id
 	a.Content = content
 	a.CreatedAt = createdAt
 	a.UpdatedAt = updatedAt

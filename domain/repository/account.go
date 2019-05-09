@@ -1,11 +1,11 @@
 package repository
 
 import (
-	"bookshelf-web-api/infrastructure/tables"
 	"context"
+	"bookshelf-web-api/domain/model"
 )
 
 type AccountRepository interface {
-	GetAccount(ctx context.Context) (*tables.Account, error)
+	GetAccount(ctx context.Context) (*model.Account, error)
 	SetAccount(token string, ctx *context.Context) (error)
 }
