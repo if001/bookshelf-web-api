@@ -7,18 +7,10 @@ import (
 
 type Book struct {
 	Base
-	BookBaseInfo
-	BookInfo
-}
-
-type BookBaseInfo struct {
 	Name string
 	Author *Author
 	PublishedAt mysql.NullTime
-	Publisher string
-}
-
-type BookInfo struct {
+	Publisher string // todo 構造体にする
 	AccountId int64
 	StartAt mysql.NullTime
 	EndAt mysql.NullTime
@@ -27,7 +19,7 @@ type BookInfo struct {
 	Descriptions []Description
 	Categories []Category
 }
-func (b *BookInfo) GetReadState() ReadState {
+func (b *Book) GetReadState() ReadState {
 	if b.StartAt.Valid && b.EndAt.Valid {
 		return &read{}
 	} else if b.StartAt.Valid && !b.EndAt.Valid {
