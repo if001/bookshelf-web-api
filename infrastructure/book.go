@@ -8,7 +8,6 @@ import (
 	"database/sql"
 	"github.com/go-sql-driver/mysql"
 	"errors"
-	"fmt"
 )
 
 // TODO DBしかうけとってないしリポジトリまとめたほうがよい？
@@ -90,37 +89,68 @@ func (r *bookRepository) GetBooks(accountId int64) (*[]model.Book, error) {
 	return &bookModels, err
 }
 
-func (r *bookRepository) CreateBook(book model.Book, account model.Account) (*model.Book, error) {
-	tx := r.DB.Begin()
-	defer func() {
-		err := recover()
-		if err != nil {
-			tx.Rollback()
+func isIncludeCategory(a int64, list []int64) bool {
+	for _, b := range list {
+		if b == a {
+			return true
 		}
-	}()
-	defer tx.Close()
-	var authorId = sql.NullInt64{ Valid:false }
-	if book.Author != nil {
-		var authorTable = tables.Author{}
-		authorTable.Name = book.Author.Name
-		newAuthor, err := createAuthor(tx, authorTable)
-		if err != nil {
-			tx.Rollback()
-			return nil, err
-		}
-		authorId = sql.NullInt64{Int64:newAuthor.ID }
 	}
-	return nil
-	for i := range book.Categories {
-		categoryTable := tables.Category{}
-		categoryTable.Name = book.Categories[i].Name
-		categoriesTable = append(
-			categoriesTable,
-			categoryTable,
+	return false
+}
+func updateBookCategory(db *gorm.DB,tx *gorm.DB, book model.Book) (error) {
+	ptrue := &[]bool{true}[0]
+	pfalse := &[]bool{false}[0]
+
+	existBookCategoriesTable := []tables.BookCategory{}
+	err := db.Where("book_id = ?", book.ID).Find(&existBookCategoriesTable).Error
+	if err != nil {
+		return err
+	}
+	existIds := []int64{}
+	for i := range existBookCategoriesTable {
+		existIds = append(
+			existIds,
+			existBookCategoriesTable[i].ID,
 		)
 	}
 
-	err := createCategories(tx, categoriesTable)
+	requestCategories := book.Categories
+	requestIds := []int64{}
+	for i := range requestCategories {
+		requestIds = append(
+			requestIds,
+			requestCategories[i].ID,
+		)
+	}
+
+	for i := range existBookCategoriesTable {
+		if !isIncludeCategory(existBookCategoriesTable[i].ID, requestIds) {
+			bookCategory := tables.BookCategory{}
+			bookCategory.ID = existBookCategoriesTable[i].ID
+			bookCategory.BookID = book.ID
+			bookCategory.Status = pfalse
+			err := tx.Save(&bookCategory).Error
+			if err != nil {
+				return err
+			}
+		}
+	}
+
+	for i := range requestCategories {
+		if isIncludeCategory(requestCategories[i].ID, existIds) {
+			bookCategory := tables.BookCategory{}
+			bookCategory.ID = requestCategories[i].ID
+			bookCategory.BookID = book.ID
+			bookCategory.Status = ptrue
+			err := tx.Create(&bookCategory).Error
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
 func (r *bookRepository) CreateBook(book model.Book, account model.Account) (result *model.Book, err error) {
 	tx := r.DB.Begin()
 	defer func() {
@@ -132,6 +162,10 @@ func (r *bookRepository) CreateBook(book model.Book, account model.Account) (res
 			}
 		}
 	}()
+
+	authorId := sql.NullInt64{Int64:book.Author.ID, Valid: book.Author != nil }
+
+	err = updateBookCategory(r.DB,tx, book)
 	if err != nil {
 		tx.Rollback()
 		return nil, err
@@ -159,8 +193,6 @@ func (r *bookRepository) CreateBook(book model.Book, account model.Account) (res
 	}
 	return &book, nil
 }
-
-
 
 
 func (r *bookRepository) FindBook(id int64, account model.Account) (*model.Book, error) {
@@ -197,6 +229,7 @@ func (r *bookRepository) FindBook(id int64, account model.Account) (*model.Book,
 	} else {
 		authorModel = model.Author{}
 	}
+
 	err = r.DB.Joins("JOIN books_categories ON books_categories.category_id = categories.id").
 		Where("book_id = ?", bookTable[0].ID).
 		Find(&categoriesTable).
@@ -286,33 +319,11 @@ func (r *bookRepository) FindBook(id int64, account model.Account) (*model.Book,
 //}
 //
 //
-func createAuthor(tx *gorm.DB, authorTable tables.Author) (*model.Author, error) {
-	err := tx.Create(&authorTable).Error
-	if err != nil {
-		return nil, err
-	}
-	newAuthor := model.Author{}
-	newAuthor.ID = authorTable.ID
-	newAuthor.Name = authorTable.Name
-	newAuthor.CreatedAt = authorTable.CreatedAt
-	newAuthor.UpdatedAt = authorTable.UpdatedAt
-	return &newAuthor, nil
-}
 
-func createCategories(tx *gorm.DB, categories []tables.Category) error {
-	for i := range categories {
-		err := tx.Create(&categories[i]).Error
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
 
 func (r *bookRepository) UpdateBook(book model.Book, account model.Account) (result *model.Book, err error) {
 	result = nil
 	err = nil
-
 
 	tx := r.DB.Begin()
 	defer func() {
@@ -337,60 +348,11 @@ func (r *bookRepository) UpdateBook(book model.Book, account model.Account) (res
 		return
 	}
 
-	authorId := sql.NullInt64{ Valid:false }
-	if book.Author != nil {
-		authorTable := []tables.Author{}
-		err := r.DB.Where("id = ?", book.Author.ID).Find(&authorTable).Error
-		if err != nil {
-			return nil, err
-		}
-		if len(authorTable) == 0 {
-			return nil, errors.New("record not found")
-		}
-		authorId = sql.NullInt64{ Int64:book.Author.ID, Valid: true }
-	}
+	authorId := sql.NullInt64{Int64:book.Author.ID, Valid: book.Author != nil }
 
-	// すでに存在するリレーションを全て削除して、新たに作り直す
-	// TODO あとで書き直す
-	deleteBookCategoriesTable := []tables.BookCategory{}
-	err = r.DB.Where("book_id = ?", book.ID).Find(&deleteBookCategoriesTable).Error
+	err = updateBookCategory(r.DB,tx, book)
 	if err != nil {
 		tx.Rollback()
-		return nil, err
-	}
-
-	for i := range deleteBookCategoriesTable {
-		deleteBookCategoriesTable[i].Status = pfalse
-	}
-
-	if len(deleteBookCategoriesTable) != 0 {
-		err = tx.Save(&deleteBookCategoriesTable).Error
-		if err != nil {
-			tx.Rollback()
-			return nil, err
-		}
-	}
-
-	newBookCategoriesTable := []tables.BookCategory{}
-	for i := range book.Categories {
-		if book.Categories[i].ID != 0 {
-			bookCategory := tables.BookCategory{}
-			bookCategory.BookID = book.ID
-			bookCategory.CategoryID = book.Categories[i].ID
-			bookCategory.Status = ptrue
-			newBookCategoriesTable = append(
-				newBookCategoriesTable,
-				bookCategory,
-			)
-		}
-	}
-	fmt.Println("aaa",newBookCategoriesTable)
-	//TODO 現状Bulk Insertできない、できるようになったら対応する
-	for i := range newBookCategoriesTable {
-		fmt.Println("aaa",newBookCategoriesTable[i])
-		err = tx.Create(&newBookCategoriesTable[i]).Error
-		if err != nil {
-			tx.Rollback()
 		return
 	}
 
