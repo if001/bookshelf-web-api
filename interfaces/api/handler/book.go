@@ -133,23 +133,7 @@ func (b *bookHandler) UpdateBook(w http.ResponseWriter, r *http.Request, ps http
 	}
 }
 
-//func (b *bookHandler) FindDescription(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
-//	bookId,err := strconv.ParseInt(ps.ByName("book"),10,64)
-//	if err != nil {
-//		ErrorHandler(service.InternalServerError(err), w ,r)
-//		return
-//	}
-//	descriptions, err := b.BookUseCase.DescriptionFindUseCase(bookId)
-//	if err != nil {
-//		ErrorHandler(err, w ,r)
-//		return
-//	}
-//	err = json.NewEncoder(w).Encode(Response{resultCode:200, Content:descriptions})
-//	if err != nil {
-//		ErrorHandler(err, w ,r)
-//		return
-//	}
-//}
+
 //
 //
 //func (b *bookHandler) CreateDescription(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {

@@ -290,13 +290,7 @@ func (r *bookRepository) FindBook(id int64, account model.Account) (*model.Book,
 	return &book, err
 }
 
-//func (c *bookRepository) FindDescriptions(id int64) (*[]model.Description, service.RecodeNotFoundError) {
-//	var descriptions = []model.Description{}
-//
-//	err := c.DB.Where("book_id = ?", id).Find(&descriptions).Error
-//	return &descriptions, err
-//}
-//
+
 //func (c *bookRepository) CreateDescription(id int64, description string) (*model.Description, service.RecodeNotFoundError) {
 //	var books []model.Book
 //

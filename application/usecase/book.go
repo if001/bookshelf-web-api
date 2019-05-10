@@ -107,10 +107,6 @@ func (u *bookUseCase) UpdateBook(book model.Book, account model.Account) (*model
 }
 
 
-//func (u *bookUseCase) DescriptionFindUseCase(id int64) (*[]model.Description, service.RecodeNotFoundError) {
-//	book, err := u.BookRepo.FindDescriptions(id)
-//	return book, service.RecodeNotFoundError(err)
-//}
 //
 //func (u *bookUseCase) DescriptionCreateUseCase(id int64, description string) (*model.Description, service.RecodeNotFoundError) {
 //	newDescription, err := u.BookRepo.CreateDescription(id, description)

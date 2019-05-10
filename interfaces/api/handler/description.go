@@ -5,9 +5,13 @@ import (
 	"encoding/json"
 	"io"
 	"io/ioutil"
+	"net/http"
+	"github.com/julienschmidt/httprouter"
+	"strconv"
 )
 
 type DescriptionHandler interface {
+	FindDescription(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	// UpdateDescription(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 }
 
@@ -34,7 +38,26 @@ func bindForm(body io.ReadCloser, form interface{}) error {
 	}
 	return nil
 }
-//
+
+func (h *descriptionHandler) FindDescription(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	bookId,err := strconv.ParseInt(ps.ByName("book"),10,64)
+	if err != nil {
+		ErrorHandler(err, w ,r)
+		return
+	}
+	descriptions, err := h.DescriptionUseCase.DescriptionFindUseCase(bookId)
+	if err != nil {
+		ErrorHandler(err, w ,r)
+		return
+	}
+	err = json.NewEncoder(w).Encode(Response{resultCode:200, Content:descriptions})
+	if err != nil {
+		ErrorHandler(err, w ,r)
+		return
+	}
+}
+
+
 //func (d *descriptionHandler) UpdateDescription(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 //	descriptionRequest := model.DescriptionRequest{}
 //
