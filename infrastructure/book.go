@@ -110,7 +110,7 @@ func (r *bookRepository) CreateBook(book model.Book, account model.Account) (*mo
 		}
 		authorId = sql.NullInt64{Int64:newAuthor.ID }
 	}
-	categoriesTable := []tables.Category{}
+	return nil
 	for i := range book.Categories {
 		categoryTable := tables.Category{}
 		categoryTable.Name = book.Categories[i].Name
@@ -121,6 +121,17 @@ func (r *bookRepository) CreateBook(book model.Book, account model.Account) (*mo
 	}
 
 	err := createCategories(tx, categoriesTable)
+func (r *bookRepository) CreateBook(book model.Book, account model.Account) (result *model.Book, err error) {
+	tx := r.DB.Begin()
+	defer func() {
+		rcv := recover()
+		if rcv != nil {
+			err = tx.Rollback().Error
+			if err == nil {
+				err = errors.New("in recover: "+rcv.(string))
+			}
+		}
+	}()
 	if err != nil {
 		tx.Rollback()
 		return nil, err
@@ -298,28 +309,32 @@ func createCategories(tx *gorm.DB, categories []tables.Category) error {
 	return nil
 }
 
-func (r *bookRepository) UpdateBook(book model.Book, account model.Account) (*model.Book, error) {
-	ptrue := &[]bool{true}[0]
-	pfalse := &[]bool{false}[0]
+func (r *bookRepository) UpdateBook(book model.Book, account model.Account) (result *model.Book, err error) {
+	result = nil
+	err = nil
 
 
 	tx := r.DB.Begin()
 	defer func() {
-		err := recover()
-		if err != nil {
-			tx.Rollback()
+		rcv := recover()
+		if rcv != nil {
+			err = tx.Rollback().Error
+			if err == nil {
+				err = errors.New("in recover: "+rcv.(string))
+			}
 		}
 	}()
 
 	bookTable := []tables.Book{}
-	err := r.DB.Where("id = ?", book.ID).Find(&bookTable).Error
+	err = r.DB.Where("id = ?", book.ID).Find(&bookTable).Error
 	if err != nil {
 		tx.Rollback()
-		return nil, err
+		return
 	}
 	if len(bookTable) == 0 {
 		tx.Rollback()
-		return nil, errors.New("record not found")
+		err = errors.New("record not found")
+		return
 	}
 
 	authorId := sql.NullInt64{ Valid:false }
@@ -376,8 +391,7 @@ func (r *bookRepository) UpdateBook(book model.Book, account model.Account) (*mo
 		err = tx.Create(&newBookCategoriesTable[i]).Error
 		if err != nil {
 			tx.Rollback()
-			return nil, err
-		}
+		return
 	}
 
 	if book.Name != "" {
@@ -392,14 +406,14 @@ func (r *bookRepository) UpdateBook(book model.Book, account model.Account) (*mo
 	err = tx.Save(&bookTable[0]).Error
 	if err != nil {
 		tx.Rollback()
-		return nil, err
+		return
 	}
 
 	err = tx.Commit().Error
 	if err != nil {
 		tx.Rollback()
-		return nil, err
+		return
 	}
-
-	return &book, nil
+	result = &book
+	return
 }
