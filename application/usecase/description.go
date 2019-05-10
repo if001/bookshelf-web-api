@@ -11,9 +11,11 @@ import (
 
 type DescriptionUseCase interface {
 	DescriptionFindUseCase(id int64) (*[]model.Description, error)
-	DescriptionRequestBind(bookId int64, body io.ReadCloser) (*model.Description, error)
+	DescriptionRequestBind(body io.ReadCloser) (*model.Description, error)
+	DescriptionRequestBindWithPath(bookId int64, body io.ReadCloser) (*model.Description, error)
 	DescriptionCreateUseCase(description model.Description) (*model.Description, error)
-	// DescriptionUpdateUseCase(id int64, description model.DescriptionRequest) (*model.Description, error)
+	DescriptionGetUseCase(description model.Description) (*model.Description, error)
+	DescriptionUpdateUseCase(description model.Description) (*model.Description, error)
 }
 
 type descriptionUseCase struct {
@@ -35,7 +37,7 @@ func (u *descriptionUseCase) DescriptionFindUseCase(id int64) (*[]model.Descript
 }
 
 
-func (u *descriptionUseCase) DescriptionRequestBind(bookId int64, body io.ReadCloser) (*model.Description, error) {
+func (u *descriptionUseCase) DescriptionRequestBindWithPath(bookId int64, body io.ReadCloser) (*model.Description, error) {
 	var descriptionRequest form.DescriptionRequest
 	// TODO 存在しないkeyがrequestにあったらbad requestにしたい
 	err := json.NewDecoder(body).Decode(&descriptionRequest)
@@ -52,6 +54,22 @@ func (u *descriptionUseCase) DescriptionRequestBind(bookId int64, body io.ReadCl
 }
 
 
+func (u *descriptionUseCase) DescriptionRequestBind(body io.ReadCloser) (*model.Description, error) {
+	var descriptionRequest form.DescriptionRequest
+	// TODO 存在しないkeyがrequestにあったらbad requestにしたい
+	err := json.NewDecoder(body).Decode(&descriptionRequest)
+	if err != nil {
+		return nil, err
+	}
+	description := model.Description{}
+	description.Content = descriptionRequest.Description
+	if description.Content == "" {
+		return nil, errors.New("request bind error")
+	}
+	return &description, nil
+}
+
+
 func (u *descriptionUseCase) DescriptionCreateUseCase(description model.Description) (*model.Description, error) {
 	newDescription, err := u.DescriptionRepo.CreateDescription(description)
 	if err != nil {
@@ -61,8 +79,19 @@ func (u *descriptionUseCase) DescriptionCreateUseCase(description model.Descript
 }
 
 
+func (u *descriptionUseCase) DescriptionGetUseCase(description model.Description) (*model.Description, error) {
+	newDescription, err := u.DescriptionRepo.GetDescription(description)
+	if err != nil {
+		return nil, err
+	}
+	return newDescription, nil
+}
 
-//func (u *descriptionUseCase) DescriptionUpdateUseCase(id int64, description model.DescriptionRequest) (*model.Description, error) {
-//	d, err := u.DescriptionRepo.Update(id, description)
-//	return d, err
-//}
+
+func (u *descriptionUseCase) DescriptionUpdateUseCase(description model.Description) (*model.Description, error) {
+	updateDescription, err := u.DescriptionRepo.Update(description)
+	if err != nil {
+		return nil, err
+	}
+	return updateDescription, nil
+}

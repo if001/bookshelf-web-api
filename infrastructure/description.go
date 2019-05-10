@@ -77,23 +77,53 @@ func (r *descriptionRepository) CreateDescription(description model.Description)
 	return &newDescription, err
 }
 
+func (r *descriptionRepository) GetDescription(description model.Description) (*model.Description, error) {
+	descriptionTable := []tables.Description{}
+	err := r.DB.Where("id = ?", description.ID).Find(&descriptionTable).Error
+	if err != nil {
+		return nil, err
+	}
+	if len(descriptionTable) == 0 {
+		return nil, errors.New("record not found")
+	}
+	descriptionModel := model.Description{}
+	descriptionModel.Fill(
+		descriptionTable[0].ID,
+		descriptionTable[0].BookId,
+		descriptionTable[0].Description,
+		descriptionTable[0].CreatedAt,
+		descriptionTable[0].UpdatedAt,
+	)
+	return &descriptionModel, nil
+}
 
 
-//func (c *descriptionRepository) Update(id int64, descriptionRequest model.DescriptionRequest) (*model.Description, service.RecodeNotFoundError) {
-//	var descriptionModelForBind []model.Description
-//	err := c.DB.Where("id = ?", id).Find(&descriptionModelForBind).Error
-//	if err != nil {
-//		return nil, err
-//	}
-//	if len(descriptionModelForBind) == 0 {
-//		return nil, errors.New("not found")
-//	}
-//	descriptionModel := descriptionModelForBind[0]
-//
-//	descriptionModel.Description = descriptionRequest.Description
-//	err = c.DB.Save(&descriptionModel).Error
-//	if err != nil {
-//		return nil, err
-//	}
-//	return &descriptionModel, err
-//}
+
+func (r *descriptionRepository) Update(descriptionRequest model.Description) (*model.Description, error) {
+	descriptionTable := []tables.Description{}
+
+	err := r.DB.Where("id = ?", descriptionRequest.ID).Find(&descriptionTable).Error
+	if err != nil {
+		return nil, err
+	}
+	if len(descriptionTable) == 0 {
+		return nil, errors.New("not found")
+	}
+
+	descriptionTable[0].Description = descriptionRequest.Content
+
+	err = r.DB.Save(&descriptionTable[0]).Error
+	if err != nil {
+		return nil, err
+	}
+
+	updateDescription := model.Description{}
+	updateDescription.Fill(
+		descriptionTable[0].ID,
+		descriptionTable[0].BookId,
+		descriptionTable[0].Description,
+		descriptionTable[0].CreatedAt,
+		descriptionTable[0].UpdatedAt,
+	)
+	return &updateDescription, err
+}
