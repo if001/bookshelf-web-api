@@ -13,8 +13,6 @@ type BookUseCase interface {
 	CreateBook(book model.Book, account model.Account) (*model.Book, error)
 	BookFindUseCase(id int64, account model.Account) (*model.Book, error)
 	UpdateBook(book model.Book, account model.Account) (*model.Book, error)
-	//DescriptionFindUseCase(id int64) (*[]model.Description, service.RecodeNotFoundError)
-	//DescriptionCreateUseCase(id int64, description string) (*model.Description, service.RecodeNotFoundError)
 	BookRequestBind(body io.ReadCloser) (*model.Book, error)
 }
 
@@ -105,11 +103,3 @@ func (u *bookUseCase) UpdateBook(book model.Book, account model.Account) (*model
 	}
 	return newBook, nil
 }
-
-
-//
-//func (u *bookUseCase) DescriptionCreateUseCase(id int64, description string) (*model.Description, service.RecodeNotFoundError) {
-//	newDescription, err := u.BookRepo.CreateDescription(id, description)
-//	return newDescription, service.RecodeNotFoundError(err)
-//}
-//

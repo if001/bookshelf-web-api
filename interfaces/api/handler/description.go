@@ -12,6 +12,7 @@ import (
 
 type DescriptionHandler interface {
 	FindDescription(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
+	CreateDescription(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	// UpdateDescription(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 }
 
@@ -57,6 +58,38 @@ func (h *descriptionHandler) FindDescription(w http.ResponseWriter, r *http.Requ
 	}
 }
 
+
+func (h *descriptionHandler) CreateDescription(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	bookId, err := strconv.ParseInt(ps.ByName("book"),10,64)
+	if err != nil {
+		ErrorHandler(err, w ,r)
+		return
+	}
+
+	body := r.Body
+	defer func() {
+		err = body.Close()
+		if err != nil {
+			ErrorHandler(err, w, r)
+		}
+	}()
+	description, err := h.DescriptionUseCase.DescriptionRequestBind(bookId, body)
+	if err != nil {
+		ErrorHandler(err, w, r)
+		return
+	}
+
+	descriptions, err := h.DescriptionUseCase.DescriptionCreateUseCase(*description)
+	if err != nil {
+		ErrorHandler(err, w, r)
+		return
+	}
+	err = json.NewEncoder(w).Encode(Response{resultCode: 200, Content: descriptions})
+	if err != nil {
+		ErrorHandler(err, w, r)
+		return
+	}
+}
 
 //func (d *descriptionHandler) UpdateDescription(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 //	descriptionRequest := model.DescriptionRequest{}

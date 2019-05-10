@@ -76,6 +76,7 @@ func (r *bookRepository) GetBooks(accountId int64) (*[]model.Book, error) {
 		for i := range descriptionTables {
 			descriptionModel.Fill(
 				descriptionTables[i].ID,
+				descriptionTables[i].BookId,
 				descriptionTables[i].Description,
 				descriptionTables[i].CreatedAt,
 				descriptionTables[i].UpdatedAt,
@@ -260,6 +261,7 @@ func (r *bookRepository) FindBook(id int64, account model.Account) (*model.Book,
 		description := model.Description{}
 		description.Fill(
 			descriptionsTable[i].ID,
+			descriptionsTable[i].BookId,
 			descriptionsTable[i].Description,
 			descriptionsTable[i].CreatedAt,
 			descriptionsTable[i].UpdatedAt,
@@ -289,31 +291,6 @@ func (r *bookRepository) FindBook(id int64, account model.Account) (*model.Book,
 	)
 	return &book, err
 }
-
-
-//func (c *bookRepository) CreateDescription(id int64, description string) (*model.Description, service.RecodeNotFoundError) {
-//	var books []model.Book
-//
-//	err := c.DB.Where("id = ?", id).Find(&books).Error
-//	if err != nil {
-//		return nil, err
-//	}
-//	if len(books) == 0 {
-//		return nil, errors.New("record not found")
-//	}
-//
-//	newDescription := model.Description{}
-//	newDescription.BookId = books[0].ID
-//	newDescription.Description = description
-//	err = c.DB.Create(&newDescription).Error
-//	if err != nil {
-//		return nil, err
-//	}
-//	return &newDescription, err
-//}
-//
-//
-
 
 func (r *bookRepository) UpdateBook(book model.Book, account model.Account) (result *model.Book, err error) {
 	result = nil

@@ -83,11 +83,13 @@ func (a *Author) Fill(id int64, name string, createdAt time.Time, updatedAt time
 
 type Description struct {
 	Base
+	BookId  int64
 	Content string
 }
-func (a *Description) Fill(id int64, content string, createdAt time.Time, updatedAt time.Time) {
+func (a *Description) Fill(id int64, bookId int64, content string, createdAt time.Time, updatedAt time.Time) {
 	a.ID = id
 	a.Content = content
+	a.BookId = bookId
 	a.CreatedAt = createdAt
 	a.UpdatedAt = updatedAt
 }

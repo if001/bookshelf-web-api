@@ -8,6 +8,7 @@ import (
 	"github.com/jinzhu/gorm"
 	"bookshelf-web-api/domain/model"
 	"bookshelf-web-api/infrastructure/tables"
+	"errors"
 )
 
 type descriptionRepository struct {
@@ -20,11 +21,11 @@ func NewDescriptionRepository(db *gorm.DB) repository.DescriptionRepository {
 
 
 
-func (c *descriptionRepository) FindDescriptions(id int64) (*[]model.Description, error) {
+func (r *descriptionRepository) FindDescriptions(id int64) (*[]model.Description, error) {
 	descriptions := []model.Description{}
 	descriptionsTable := []tables.Description{}
 
-	err := c.DB.Where("book_id = ?", id).Find(&descriptionsTable).Error
+	err := r.DB.Where("book_id = ?", id).Find(&descriptionsTable).Error
 	if err != nil {
 		return nil, err
 	}
@@ -32,6 +33,7 @@ func (c *descriptionRepository) FindDescriptions(id int64) (*[]model.Description
 		description := model.Description{}
 		description.Fill(
 			descriptionsTable[i].ID,
+			id,
 			descriptionsTable[i].Description,
 			descriptionsTable[i].CreatedAt,
 			descriptionsTable[i].UpdatedAt,
@@ -43,6 +45,39 @@ func (c *descriptionRepository) FindDescriptions(id int64) (*[]model.Description
 	}
 	return &descriptions, err
 }
+
+
+func (r *descriptionRepository) CreateDescription(description model.Description) (*model.Description, error) {
+	var books []model.Book
+	err := r.DB.Where("id = ?", description.BookId).Find(&books).Error
+	if err != nil {
+		return nil, err
+	}
+	if len(books) == 0 {
+		return nil, errors.New("record not found")
+	}
+
+	descriptionTable := tables.Description{}
+	descriptionTable.BookId = description.BookId
+	descriptionTable.Description = description.Content
+
+	err = r.DB.Create(&descriptionTable).Error
+	if err != nil {
+		return nil, err
+	}
+	newDescription := model.Description{}
+
+	newDescription.Fill(
+		descriptionTable.ID,
+		description.BookId,
+		description.Content,
+		description.CreatedAt,
+		description.UpdatedAt,
+	)
+	return &newDescription, err
+}
+
+
 
 //func (c *descriptionRepository) Update(id int64, descriptionRequest model.DescriptionRequest) (*model.Description, service.RecodeNotFoundError) {
 //	var descriptionModelForBind []model.Description
