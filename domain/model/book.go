@@ -21,15 +21,16 @@ type Book struct {
 }
 func (b *Book) GetReadState() ReadState {
 	if b.StartAt.Valid && b.EndAt.Valid {
-		return notReadValue
+		return ReadValue
 	} else if b.StartAt.Valid && !b.EndAt.Valid {
-		return readingValue
+		return ReadingValue
 	} else if !b.StartAt.Valid && !b.EndAt.Valid {
-		return readValue
+		return NotReadValue
 	} else {
-		return readValue
+		return NotReadValue
 	}
 }
+
 func (b *Book) Fill(id int64, name string, author *Author,
 	publishAt mysql.NullTime, publisher string,
 	accountId int64, startAt mysql.NullTime, endAt mysql.NullTime,
@@ -38,6 +39,8 @@ func (b *Book) Fill(id int64, name string, author *Author,
 	b.ID = id
 	b.Name = name
 	b.Author = author
+	b.AccountId = accountId
+	b.Publisher = ""
 	b.PublishedAt = publishAt
 	b.StartAt = startAt
 	b.EndAt = endAt

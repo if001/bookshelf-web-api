@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"io"
 	"bookshelf-web-api/application/usecase/form"
+	"errors"
 )
 
 type BookUseCase interface {
@@ -14,7 +15,9 @@ type BookUseCase interface {
 	BookFindUseCase(id int64, account model.Account) (*model.Book, error)
 	UpdateBook(book model.Book, account model.Account) (*model.Book, error)
 	BookRequestBind(body io.ReadCloser) (*model.Book, error)
-	GetBookStatue(bookId int64, account model.Account) (*form.BookStatusResponse, error)
+	GetBookState(bookId int64, account model.Account) (*form.BookStatusResponse, error)
+	StartReadBook(bookId int64, account model.Account) (*model.Book, error)
+	EndReadBook(bookId int64, account model.Account) (*model.Book, error)
 }
 
 type bookUseCase struct {
@@ -89,11 +92,10 @@ func (u *bookUseCase) BookFindUseCase(id int64, account model.Account) (*model.B
 		book.Author = nil
 	}
 	notExistCategories,err := u.CategoryR.GetNotExistCategories(book.Categories)
-	book.Categories = *notExistCategories
-
 	if err != nil {
 		return nil, err
 	}
+	book.Categories = *notExistCategories
 	return book, nil
 }
 
@@ -105,7 +107,7 @@ func (u *bookUseCase) UpdateBook(book model.Book, account model.Account) (*model
 	return newBook, nil
 }
 
-func (u *bookUseCase) GetBookStatue(bookId int64, account model.Account) (*form.BookStatusResponse, error) {
+func (u *bookUseCase) GetBookState(bookId int64, account model.Account) (*form.BookStatusResponse, error) {
 	book, err := u.BookR.FindBook(bookId, account)
 	if err != nil {
 		return nil, err
@@ -116,4 +118,46 @@ func (u *bookUseCase) GetBookStatue(bookId int64, account model.Account) (*form.
 	response.BookId = bookId
 	response.ReadStatus = bookStatus
 	return &response, nil
+}
+
+func (u *bookUseCase) StartReadBook(bookId int64, account model.Account) (*model.Book, error) {
+	book, err := u.BookR.FindBook(bookId, account)
+	if err != nil {
+		return nil, err
+	}
+
+	bookStatus := book.GetReadState()
+
+	if bookStatus == model.ReadingValue {
+		return nil, errors.New("already reading state")
+	}else if bookStatus == model.NotReadValue || bookStatus == model.ReadValue {
+		updatedBook, err := u.BookR.StartReadBook(*book)
+		if err != nil {
+			return nil, err
+		}
+		return updatedBook, nil
+	} else {
+		return nil, errors.New("bad book status")
+	}
+}
+
+func (u *bookUseCase) EndReadBook(bookId int64, account model.Account) (*model.Book, error) {
+	book, err := u.BookR.FindBook(bookId, account)
+	if err != nil {
+		return nil, err
+	}
+
+	bookStatus := book.GetReadState()
+
+	if bookStatus == model.NotReadValue  || bookStatus == model.ReadValue {
+		return nil, errors.New("already end or not read state")
+	}else if  bookStatus == model.ReadingValue {
+		updatedBook, err := u.BookR.EndReadBook(*book)
+		if err != nil {
+			return nil, err
+		}
+		return updatedBook, nil
+	} else {
+		return nil, errors.New("bad book status")
+	}
 }

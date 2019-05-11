@@ -2,7 +2,8 @@ package model
 
 type ReadState int8
 const (
-	notReadValue ReadState = 0
-	readingValue ReadState = 1
-	readValue ReadState = 2
+	NotReadValue ReadState = 0
+	ReadingValue ReadState = 1
+	ReadValue    ReadState = 2
 )
+

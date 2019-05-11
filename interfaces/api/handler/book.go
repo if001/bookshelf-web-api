@@ -6,6 +6,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"strconv"
+	"fmt"
 )
 
 type BookHandler interface {
@@ -14,6 +15,8 @@ type BookHandler interface {
 	CreateBook(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	UpdateBook(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	GetBookStatus(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
+	StartReadBook(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
+	EndReadBook(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 }
 
 type bookHandler struct {
@@ -99,7 +102,12 @@ func (b *bookHandler) FindBook(w http.ResponseWriter, r *http.Request, ps httpro
 		ErrorHandler(err, w ,r)
 		return
 	}
-	err = json.NewEncoder(w).Encode(Response{resultCode:200, Content:book})
+
+	s, _ := json.Marshal(book)
+	fmt.Println("aaaaaa:",s)
+	w.Write(s)
+
+	// err = json.NewEncoder(w).Encode(Response{resultCode:200, Content:book})
 	if err != nil {
 		ErrorHandler(err, w ,r)
 		return
@@ -139,10 +147,6 @@ func (b *bookHandler) UpdateBook(w http.ResponseWriter, r *http.Request, ps http
 	}
 }
 
-type Hoge struct {
-	a string
-	b int
-}
 func (b *bookHandler) GetBookStatus(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
 	bookId, err := strconv.ParseInt(ps.ByName("book"),10,64)
 	if err != nil {
@@ -154,13 +158,63 @@ func (b *bookHandler) GetBookStatus(w http.ResponseWriter, r *http.Request, ps h
 		ErrorHandler(err, w ,r)
 		return
 	}
-	bookStatusResponse, err := b.BookUseCase.GetBookStatue(bookId, *account)
+	bookStatusResponse, err := b.BookUseCase.GetBookState(bookId, *account)
 	if err != nil {
 		ErrorHandler(err, w ,r)
 		return
 	}
 
 	err = json.NewEncoder(w).Encode(Response{resultCode:200, Content:bookStatusResponse})
+	if err != nil {
+		ErrorHandler(err, w ,r)
+		return
+	}
+}
+
+func (b *bookHandler) StartReadBook(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	bookId, err := strconv.ParseInt(ps.ByName("book"),10,64)
+	if err != nil {
+		ErrorHandler(err, w ,r)
+		return
+	}
+	account, err := b.AccountUseCase.GetAccountUseCase(r.Context())
+	if err != nil {
+		ErrorHandler(err, w ,r)
+		return
+	}
+
+	book, err := b.BookUseCase.StartReadBook(bookId,  *account)
+	if err != nil {
+		ErrorHandler(err, w ,r)
+		return
+	}
+
+	err = json.NewEncoder(w).Encode(Response{resultCode:200, Content:book})
+	if err != nil {
+		ErrorHandler(err, w ,r)
+		return
+	}
+}
+
+func (b *bookHandler) EndReadBook(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	bookId, err := strconv.ParseInt(ps.ByName("book"),10,64)
+	if err != nil {
+		ErrorHandler(err, w ,r)
+		return
+	}
+	account, err := b.AccountUseCase.GetAccountUseCase(r.Context())
+	if err != nil {
+		ErrorHandler(err, w ,r)
+		return
+	}
+
+	book, err := b.BookUseCase.EndReadBook(bookId,  *account)
+	if err != nil {
+		ErrorHandler(err, w ,r)
+		return
+	}
+
+	err = json.NewEncoder(w).Encode(Response{resultCode:200, Content:book})
 	if err != nil {
 		ErrorHandler(err, w ,r)
 		return

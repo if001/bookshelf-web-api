@@ -8,6 +8,7 @@ import (
 	"database/sql"
 	"github.com/go-sql-driver/mysql"
 	"errors"
+	"time"
 )
 
 // TODO DBしかうけとってないしリポジトリまとめたほうがよい？
@@ -351,4 +352,32 @@ func (r *bookRepository) UpdateBook(book model.Book, account model.Account) (res
 	}
 	result = &book
 	return
+}
+
+func (r *bookRepository) StartReadBook(book model.Book) (*model.Book, error){
+	bookTable := tables.Book{}
+	bookTable.BindFromModel(book)
+	bookTable.StartAt = mysql.NullTime{ Time:time.Now(), Valid:true }
+	bookTable.EndAt = mysql.NullTime{ Valid:false }
+	err := r.DB.Save(&bookTable).Error
+	if err != nil {
+		return nil, err
+	}
+
+	book.StartAt = bookTable.StartAt
+	book.EndAt = bookTable.EndAt
+	return &book, nil
+}
+func (r *bookRepository) EndReadBook(book model.Book) (*model.Book, error){
+	bookTable := tables.Book{}
+	bookTable.BindFromModel(book)
+	bookTable.EndAt = mysql.NullTime{ Time:time.Now(), Valid:true }
+	err := r.DB.Save(&bookTable).Error
+	if err != nil {
+		return nil, err
+	}
+
+	book.StartAt = bookTable.StartAt
+	book.EndAt = bookTable.EndAt
+	return &book, nil
 }
