@@ -256,21 +256,23 @@ func (r *bookRepository) FindBook(id int64, account model.Account) (*model.Book,
 	if err != nil {
 		return nil, err
 	}
-	bookTable[0].Description = descriptionsTable
-	for i := range descriptionsTable{
-		description := model.Description{}
-		description.Fill(
-			descriptionsTable[i].ID,
-			descriptionsTable[i].BookId,
-			descriptionsTable[i].Description,
-			descriptionsTable[i].CreatedAt,
-			descriptionsTable[i].UpdatedAt,
-		)
-		descriptionsModel = append(
-			descriptionsModel,
-			description,
-		)
+	if len(descriptionsTable) != 0 {
+		for i := range descriptionsTable {
+			description := model.Description{}
+			description.Fill(
+				descriptionsTable[i].ID,
+				descriptionsTable[i].BookId,
+				descriptionsTable[i].Description,
+				descriptionsTable[i].CreatedAt,
+				descriptionsTable[i].UpdatedAt,
+			)
+			descriptionsModel = append(
+				descriptionsModel,
+				description,
+			)
+		}
 	}
+
 	book := model.Book{}
 
 	book.Fill(
@@ -289,7 +291,7 @@ func (r *bookRepository) FindBook(id int64, account model.Account) (*model.Book,
 		bookTable[0].CreatedAt,
 		bookTable[0].UpdatedAt,
 	)
-	return &book, err
+	return &book, nil
 }
 
 func (r *bookRepository) UpdateBook(book model.Book, account model.Account) (result *model.Book, err error) {

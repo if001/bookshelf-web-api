@@ -1,5 +1,7 @@
 package form
 
+import "bookshelf-web-api/domain/model"
+
 type BookRequest struct {
 	Title string
 	AuthorId int64
@@ -10,4 +12,9 @@ type BookRequest struct {
 
 type DescriptionRequest struct {
 	Description string
+}
+
+type BookStatusResponse struct {
+	BookId int64
+	ReadStatus model.ReadState
 }

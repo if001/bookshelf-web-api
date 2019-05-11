@@ -14,6 +14,7 @@ type BookUseCase interface {
 	BookFindUseCase(id int64, account model.Account) (*model.Book, error)
 	UpdateBook(book model.Book, account model.Account) (*model.Book, error)
 	BookRequestBind(body io.ReadCloser) (*model.Book, error)
+	GetBookStatue(bookId int64, account model.Account) (*form.BookStatusResponse, error)
 }
 
 type bookUseCase struct {
@@ -102,4 +103,17 @@ func (u *bookUseCase) UpdateBook(book model.Book, account model.Account) (*model
 		return nil, err
 	}
 	return newBook, nil
+}
+
+func (u *bookUseCase) GetBookStatue(bookId int64, account model.Account) (*form.BookStatusResponse, error) {
+	book, err := u.BookR.FindBook(bookId, account)
+	if err != nil {
+		return nil, err
+	}
+	bookStatus := book.GetReadState()
+
+	response := form.BookStatusResponse{}
+	response.BookId = bookId
+	response.ReadStatus = bookStatus
+	return &response, nil
 }

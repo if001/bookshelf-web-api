@@ -13,6 +13,7 @@ type BookHandler interface {
 	FindBook(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	CreateBook(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 	UpdateBook(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
+	GetBookStatus(w http.ResponseWriter, r *http.Request, ps httprouter.Params)
 }
 
 type bookHandler struct {
@@ -132,6 +133,34 @@ func (b *bookHandler) UpdateBook(w http.ResponseWriter, r *http.Request, ps http
 		return
 	}
 	err = json.NewEncoder(w).Encode(Response{resultCode:200, Content:newBook})
+	if err != nil {
+		ErrorHandler(err, w ,r)
+		return
+	}
+}
+
+type Hoge struct {
+	a string
+	b int
+}
+func (b *bookHandler) GetBookStatus(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	bookId, err := strconv.ParseInt(ps.ByName("book"),10,64)
+	if err != nil {
+		ErrorHandler(err, w ,r)
+		return
+	}
+	account, err := b.AccountUseCase.GetAccountUseCase(r.Context())
+	if err != nil {
+		ErrorHandler(err, w ,r)
+		return
+	}
+	bookStatusResponse, err := b.BookUseCase.GetBookStatue(bookId, *account)
+	if err != nil {
+		ErrorHandler(err, w ,r)
+		return
+	}
+
+	err = json.NewEncoder(w).Encode(Response{resultCode:200, Content:bookStatusResponse})
 	if err != nil {
 		ErrorHandler(err, w ,r)
 		return

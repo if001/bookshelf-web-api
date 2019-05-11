@@ -28,12 +28,12 @@ func NewCategoryHandler(c usecase.CategoryUseCase) CategoryHandler {
 }
 
 func (u *categoryHandler) CategoryList(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	cate, err := u.CategoryUseCase.CategoryUseCase()
+	category, err := u.CategoryUseCase.CategoryUseCase()
 	if err != nil {
 		ErrorHandler(err, w, r)
 		return
 	}
-	err = json.NewEncoder(w).Encode(Response{resultCode:200, Content:cate})
+	err = json.NewEncoder(w).Encode(Response{resultCode:200, Content:category})
 	if err != nil {
 		ErrorHandler(err, w, r)
 		return

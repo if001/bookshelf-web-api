@@ -21,13 +21,13 @@ type Book struct {
 }
 func (b *Book) GetReadState() ReadState {
 	if b.StartAt.Valid && b.EndAt.Valid {
-		return &read{}
+		return notReadValue
 	} else if b.StartAt.Valid && !b.EndAt.Valid {
-		return &reading{}
+		return readingValue
 	} else if !b.StartAt.Valid && !b.EndAt.Valid {
-		return &notRead{}
+		return readValue
 	} else {
-		return nil
+		return readValue
 	}
 }
 func (b *Book) Fill(id int64, name string, author *Author,
