@@ -3,6 +3,7 @@ package infrastructure
 import (
 	"bookshelf-web-api/domain/model"
 	"bookshelf-web-api/domain/repository"
+	"bookshelf-web-api/domain/service"
 	"github.com/jinzhu/gorm"
 	"bookshelf-web-api/infrastructure/tables"
 	"database/sql"
@@ -177,9 +178,9 @@ func (r *bookRepository) CreateBook(book model.Book, account model.Account) (res
 	bookTable.AccountID = account.ID
 	bookTable.Title = book.Name
 	bookTable.AuthorID = authorId
-	bookTable.PublishedAt = mysql.NullTime{Valid:false }
-	bookTable.StartAt = mysql.NullTime{Valid:false }
-	bookTable.EndAt = mysql.NullTime{Valid:false }
+	bookTable.PublishedAt = service.NullTime{NullTime:mysql.NullTime{Valid:false }}
+	bookTable.StartAt = service.NullTime{NullTime:mysql.NullTime{Valid:false }}
+	bookTable.EndAt = service.NullTime{NullTime:mysql.NullTime{Valid:false }}
 	bookTable.NextBookID = sql.NullInt64{Int64:book.NextBookID, Valid:book.NextBookID != 0}
 	bookTable.PrevBookID = sql.NullInt64{Int64:book.PrevBookID, Valid:book.PrevBookID != 0}
 
@@ -334,8 +335,8 @@ func (r *bookRepository) UpdateBook(book model.Book, account model.Account) (res
 		bookTable[0].Title = book.Name
 	}
 	bookTable[0].AuthorID = authorId
-	bookTable[0].StartAt = mysql.NullTime{Valid:false }
-	bookTable[0].EndAt = mysql.NullTime{Valid:false }
+	bookTable[0].StartAt = service.NullTime{NullTime:mysql.NullTime{Valid:false }}
+	bookTable[0].EndAt = service.NullTime{NullTime:mysql.NullTime{Valid:false }}
 	bookTable[0].NextBookID = sql.NullInt64{Int64:book.NextBookID, Valid:book.NextBookID != 0}
 	bookTable[0].PrevBookID = sql.NullInt64{Int64:book.PrevBookID, Valid:book.PrevBookID != 0}
 
@@ -357,8 +358,8 @@ func (r *bookRepository) UpdateBook(book model.Book, account model.Account) (res
 func (r *bookRepository) StartReadBook(book model.Book) (*model.Book, error){
 	bookTable := tables.Book{}
 	bookTable.BindFromModel(book)
-	bookTable.StartAt = mysql.NullTime{ Time:time.Now(), Valid:true }
-	bookTable.EndAt = mysql.NullTime{ Valid:false }
+	bookTable.StartAt = service.NullTime{NullTime:mysql.NullTime{ Time:time.Now(), Valid:true }}
+	bookTable.EndAt = service.NullTime{NullTime:mysql.NullTime{ Valid:false }}
 	err := r.DB.Save(&bookTable).Error
 	if err != nil {
 		return nil, err
@@ -371,7 +372,7 @@ func (r *bookRepository) StartReadBook(book model.Book) (*model.Book, error){
 func (r *bookRepository) EndReadBook(book model.Book) (*model.Book, error){
 	bookTable := tables.Book{}
 	bookTable.BindFromModel(book)
-	bookTable.EndAt = mysql.NullTime{ Time:time.Now(), Valid:true }
+	bookTable.EndAt = service.NullTime{NullTime:mysql.NullTime{ Time:time.Now(), Valid:true }}
 	err := r.DB.Save(&bookTable).Error
 	if err != nil {
 		return nil, err

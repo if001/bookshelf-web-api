@@ -1,19 +1,19 @@
 package model
 
 import (
+	"bookshelf-web-api/domain/service"
 	"time"
-	"github.com/go-sql-driver/mysql"
 )
 
 type Book struct {
 	Base
 	Name string
 	Author *Author
-	PublishedAt mysql.NullTime
+	PublishedAt service.NullTime
 	Publisher string // todo 構造体にする
 	AccountId int64
-	StartAt mysql.NullTime
-	EndAt mysql.NullTime
+	StartAt service.NullTime
+	EndAt service.NullTime
 	NextBookID  int64
 	PrevBookID  int64
 	Descriptions []Description
@@ -32,8 +32,8 @@ func (b *Book) GetReadState() ReadState {
 }
 
 func (b *Book) Fill(id int64, name string, author *Author,
-	publishAt mysql.NullTime, publisher string,
-	accountId int64, startAt mysql.NullTime, endAt mysql.NullTime,
+	publishAt service.NullTime, publisher string,
+	accountId int64, startAt service.NullTime, endAt service.NullTime,
 	nextBookId int64, prevBookId int64, descriptions []Description, categories []Category,
 	createdAt time.Time, updatedAt time.Time) {
 	b.ID = id

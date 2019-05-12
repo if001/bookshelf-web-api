@@ -6,7 +6,6 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"strconv"
-	"fmt"
 )
 
 type BookHandler interface {
@@ -103,10 +102,14 @@ func (b *bookHandler) FindBook(w http.ResponseWriter, r *http.Request, ps httpro
 		return
 	}
 
-	s, _ := json.Marshal(book)
-	fmt.Println("aaaaaa:",s)
-	w.Write(s)
+	//s, err := json.Marshal(book)
+	//if err != nil {
+	//	ErrorHandler(err, w ,r)
+	//	return
+	//}
 
+	// _, err = w.Write(s)
+	err = json.NewEncoder(w).Encode(Response{resultCode:200, Content:book})
 	// err = json.NewEncoder(w).Encode(Response{resultCode:200, Content:book})
 	if err != nil {
 		ErrorHandler(err, w ,r)
