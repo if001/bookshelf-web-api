@@ -101,16 +101,8 @@ func (b *bookHandler) FindBook(w http.ResponseWriter, r *http.Request, ps httpro
 		ErrorHandler(err, w ,r)
 		return
 	}
-
-	//s, err := json.Marshal(book)
-	//if err != nil {
-	//	ErrorHandler(err, w ,r)
-	//	return
-	//}
-
-	// _, err = w.Write(s)
-	err = json.NewEncoder(w).Encode(Response{resultCode:200, Content:book})
-	// err = json.NewEncoder(w).Encode(Response{resultCode:200, Content:book})
+	bookResponse := b.BookUseCase.ModelToResponse(*book)
+	err = json.NewEncoder(w).Encode(Response{resultCode:200, Content:bookResponse})
 	if err != nil {
 		ErrorHandler(err, w ,r)
 		return

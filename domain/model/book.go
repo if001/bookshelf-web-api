@@ -10,7 +10,7 @@ type Book struct {
 	Name string
 	Author *Author
 	PublishedAt service.NullTime
-	Publisher string // todo 構造体にする
+	Publisher *Publisher
 	AccountId int64
 	StartAt service.NullTime
 	EndAt service.NullTime
@@ -32,7 +32,7 @@ func (b *Book) GetReadState() ReadState {
 }
 
 func (b *Book) Fill(id int64, name string, author *Author,
-	publishAt service.NullTime, publisher string,
+	publishAt service.NullTime, publisher *Publisher,
 	accountId int64, startAt service.NullTime, endAt service.NullTime,
 	nextBookId int64, prevBookId int64, descriptions []Description, categories []Category,
 	createdAt time.Time, updatedAt time.Time) {
@@ -40,7 +40,7 @@ func (b *Book) Fill(id int64, name string, author *Author,
 	b.Name = name
 	b.Author = author
 	b.AccountId = accountId
-	b.Publisher = ""
+	b.Publisher = nil
 	b.PublishedAt = publishAt
 	b.StartAt = startAt
 	b.EndAt = endAt
@@ -87,4 +87,8 @@ func (a *Description) Fill(id int64, bookId int64, content string, createdAt tim
 	a.BookId = bookId
 	a.CreatedAt = createdAt
 	a.UpdatedAt = updatedAt
+}
+type Publisher struct {
+	Base
+	Name string
 }

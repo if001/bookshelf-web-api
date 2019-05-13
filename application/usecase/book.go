@@ -7,6 +7,8 @@ import (
 	"io"
 	"bookshelf-web-api/application/usecase/form"
 	"errors"
+	"database/sql"
+	"bookshelf-web-api/domain/service"
 )
 
 type BookUseCase interface {
@@ -18,6 +20,7 @@ type BookUseCase interface {
 	GetBookState(bookId int64, account model.Account) (*form.BookStatusResponse, error)
 	StartReadBook(bookId int64, account model.Account) (*model.Book, error)
 	EndReadBook(bookId int64, account model.Account) (*model.Book, error)
+	ModelToResponse(book model.Book) (*form.BookResponse)
 }
 
 type bookUseCase struct {
@@ -160,4 +163,52 @@ func (u *bookUseCase) EndReadBook(bookId int64, account model.Account) (*model.B
 	} else {
 		return nil, errors.New("bad book status")
 	}
+}
+
+func (u *bookUseCase) ModelToResponse(book model.Book) (*form.BookResponse) {
+	response := form.BookResponse{}
+
+	response.ID = book.ID
+	response.Name = book.Name
+	response.AccountId = book.AccountId
+
+
+	if book.Author != nil {
+		authorResponse := form.AuthorResponse{}
+		authorResponse.ID = book.Author.ID
+		authorResponse.Name = book.Author.Name
+		response.Author = &authorResponse
+	} else {
+		response.Author = nil
+	}
+	if book.Publisher != nil {
+		publisherResponse := form.PublisherResponse{}
+		publisherResponse.ID = book.Publisher.ID
+		publisherResponse.Name = book.Publisher.Name
+		response.Publisher = &publisherResponse
+	} else {
+		response.Publisher = nil
+	}
+
+	response.StartAt = book.StartAt
+	response.EndAt = book.EndAt
+
+	response.PrevBookID = service.NullInt64{NullInt64: sql.NullInt64{Int64:book.PrevBookID, Valid:book.PrevBookID != 0}}
+	response.NextBookID = service.NullInt64{NullInt64: sql.NullInt64{Int64:book.NextBookID, Valid:book.NextBookID != 0}}
+
+	for i := range book.Categories {
+		c := form.CategoryResponse{}
+		c.ID = book.Categories[i].ID
+		c.Name = book.Categories[i].Name
+		response.Categories = append(response.Categories, c)
+	}
+	for i := range book.Descriptions {
+		d := form.DescriptionResponse{}
+		d.ID = book.Descriptions[i].ID
+		d.Content = book.Descriptions[i].Content
+		response.Descriptions = append(response.Descriptions, d)
+	}
+	response.UpdatedAt = book.UpdatedAt
+	response.CreatedAt = book.CreatedAt
+	return &response
 }

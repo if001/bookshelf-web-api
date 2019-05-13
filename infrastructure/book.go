@@ -282,7 +282,7 @@ func (r *bookRepository) FindBook(id int64, account model.Account) (*model.Book,
 		bookTable[0].Title,
 		&authorModel,
 		bookTable[0].PublishedAt,
-		"publisher", //TODO あとでテーブルにからむつくる
+		nil, //TODO あとでテーブルにからむつくる
 		account.ID,
 		bookTable[0].StartAt,
 		bookTable[0].EndAt,

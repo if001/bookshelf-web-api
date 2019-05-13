@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"github.com/go-sql-driver/mysql"
 	"time"
 )
@@ -30,15 +29,11 @@ func (i *NullInt64) UnmarshalJSON(data []byte) error {
 	return nil
 }
 
+
 type NullTime struct {
 	mysql.NullTime
 }
-
-func NewNullTime(nullTime mysql.NullTime) NullTime {
-	return NullTime{NullTime: nullTime}
-}
 func (nt NullTime) MarshalJSON() ([]byte, error) {
-	fmt.Println("time marshal")
 	if nt.Valid {
 		return nt.Time.MarshalJSON()
 	} else {
@@ -46,7 +41,6 @@ func (nt NullTime) MarshalJSON() ([]byte, error) {
 	}
 }
 func (nt *NullTime) UnmarshalJSON(data []byte) error {
-	fmt.Println("time unmarshal")
 	if bytes.Compare(data, []byte("null")) == 0 {
 		nt.Valid = false
 		return nil
