@@ -82,3 +82,25 @@ func (r *categoryRepository) GetNotExistCategories(categories []model.Category) 
 	return &notExistCategories, nil
 }
 
+func  (r *categoryRepository) LogicalDelete(bookId int64, categoryId int64)  (error){
+	pfalse := &[]bool{false}[0]
+	bookCategory := []tables.BookCategory{}
+	err := r.DB.
+		Where("book_id = ?", bookId).
+		Where("category_id = ?", categoryId).
+		Find(&bookCategory).Error
+
+	if err != nil {
+		return err
+	}
+	if len(bookCategory) == 0 {
+		return errors.New("record not found")
+	}
+	bookCategory[0].Status = pfalse
+
+	err = r.DB.Save(&bookCategory[0]).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}

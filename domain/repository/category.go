@@ -10,5 +10,6 @@ type CategoryRepository interface {
 	GetByIds(categoryIds []int64) (*[]model.Category, service.RecodeNotFoundError)
 	GetByBookId(bookId int64) (*[]model.Category, error)
 	GetNotExistCategories(categories []model.Category) (*[]model.Category, error)
+	LogicalDelete(bookId int64, categoryId int64)  (error)
 }
 
