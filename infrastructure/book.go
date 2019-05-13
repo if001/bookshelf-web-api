@@ -80,6 +80,7 @@ func (r *bookRepository) GetBooks(account model.Account) (*[]model.Book, error) 
 
 		err = r.DB.Joins("JOIN books_categories ON books_categories.category_id = categories.id").
 			Where("book_id = ?", bookTable[i].ID).
+			Where("status = ?", pTrue).
 			Find(&categoriesTable).
 			Error
 		if err != nil {
@@ -152,8 +153,6 @@ func isIncludeCategory(a int64, list []int64) bool {
 	return false
 }
 func updateBookCategory(db *gorm.DB,tx *gorm.DB, book model.Book) (error) {
-	ptrue := &[]bool{true}[0]
-	pfalse := &[]bool{false}[0]
 
 	existBookCategoriesTable := []tables.BookCategory{}
 	err := db.Where("book_id = ?", book.ID).Find(&existBookCategoriesTable).Error
@@ -182,7 +181,7 @@ func updateBookCategory(db *gorm.DB,tx *gorm.DB, book model.Book) (error) {
 			bookCategory := tables.BookCategory{}
 			bookCategory.ID = existBookCategoriesTable[i].ID
 			bookCategory.BookID = book.ID
-			bookCategory.Status = pfalse
+			bookCategory.Status = pFalse
 			err := tx.Save(&bookCategory).Error
 			if err != nil {
 				return err
@@ -195,7 +194,7 @@ func updateBookCategory(db *gorm.DB,tx *gorm.DB, book model.Book) (error) {
 			bookCategory := tables.BookCategory{}
 			bookCategory.ID = requestCategories[i].ID
 			bookCategory.BookID = book.ID
-			bookCategory.Status = ptrue
+			bookCategory.Status = pTrue
 			err := tx.Create(&bookCategory).Error
 			if err != nil {
 				return err
@@ -284,8 +283,10 @@ func (r *bookRepository) FindBook(id int64, account model.Account) (*model.Book,
 		authorModel = nil
 	}
 
+
 	err = r.DB.Joins("JOIN books_categories ON books_categories.category_id = categories.id").
 		Where("book_id = ?", bookTable[0].ID).
+		Where("status = ?", pTrue).
 		Find(&categoriesTable).
 		Error
 	if err != nil {
