@@ -21,75 +21,126 @@ func NewBookRepository(db *gorm.DB) repository.BookRepository {
 	return &bookRepository{ DB : db }
 }
 
-func (r *bookRepository) GetBooks(accountId int64) (*[]model.Book, error) {
-	var bookTables []tables.Book
-	var categoriesTable []tables.Category
-	var descriptionTables []tables.Description
-	var bookModels []model.Book
 
-	err := r.DB.Where("account_id = ?", accountId).Find(&bookTables).Error
+//func (r *bookRepository) GetBooks(accountId int64) (*[]model.Book, error) {
+//	var bookTablesAll []tables.Book2
+//	err2 := r.DB.
+//		Table("books").
+//		Select("books.*, author.name as author_name, categories.*,description.description, description.created_at as descriptionCreatedAt").
+//		Where("books.account_id = ?", accountId).
+//		Where("books.id = ?", 2).
+//		Joins("LEFT JOIN author ON books.author_id = author.id").
+//		Joins("LEFT JOIN books_categories ON books_categories.book_id = books.id").
+//		Joins("LEFT JOIN categories ON books_categories.category_id = categories.id").
+//		Joins("LEFT JOIN description ON description.book_id = books.id").
+//		Find(&bookTablesAll).
+//		Error
+//}
+
+
+func (r *bookRepository) GetBooks(account model.Account) (*[]model.Book, error) {
+	bookTable := []tables.Book{}
+	books := []model.Book{}
+
+	err := r.DB.Where("account_id = ?", account.ID).Find(&bookTable).Error
 	if err != nil {
 		return nil, err
 	}
-	for i := range bookTables {
-		var bookModel = model.Book{}
-		var authorModel = model.Author{}
-		var categoryModel = model.Category{}
-		var descriptionModel = model.Description{}
+	if len(bookTable) == 0 {
+		return nil, errors.New("table not found")
+	}
 
-		if bookTables[i].AuthorID.Int64 != 0 {
-			err = r.DB.Model(bookTables[i]).Related(&bookTables[i].Author,"Author").Error
-			if err != nil {
-				return nil, err
-			}
-			authorModel.Fill(
-				bookTables[i].Author.ID,
-				bookTables[i].Author.Name,
-				bookTables[i].Author.CreatedAt,
-				bookTables[i].Author.UpdatedAt,
-			)
+	for i := range bookTable {
+		authorTable := []tables.Author{}
+		categoriesTable := []tables.Category{}
+		descriptionsTable := []tables.Description{}
+
+		authorModel := &model.Author{}
+		categoriesModel := []model.Category{}
+		descriptionsModel := []model.Description{}
+
+
+		err = r.DB.Joins("JOIN books ON books.author_id = author.id").
+			Where("books.id = ?", bookTable[i].ID).
+			Find(&authorTable).
+			Error
+		if err != nil {
+			return nil, err
 		}
-		bookModel.Author = &authorModel
+		if len(authorTable) != 0 {
+			authorModel.Fill(
+				authorTable[0].ID,
+				authorTable[0].Name,
+				authorTable[0].CreatedAt,
+				authorTable[0].UpdatedAt,
+			)
+		} else {
+			authorModel = nil
+		}
 
 		err = r.DB.Joins("JOIN books_categories ON books_categories.category_id = categories.id").
-			Where("book_id = ?", bookTables[i].ID).
+			Where("book_id = ?", bookTable[i].ID).
 			Find(&categoriesTable).
 			Error
 		if err != nil {
 			return nil, err
 		}
+
 		for i := range categoriesTable {
-			categoryModel.Fill(
+			category := model.Category{}
+			category.Fill(
 				categoriesTable[i].ID,
 				categoriesTable[i].Name,
 				categoriesTable[i].CreatedAt,
 				categoriesTable[i].UpdatedAt,
 			)
-			bookModel.Categories = append(
-				bookModel.Categories,
-				categoryModel)
+			categoriesModel = append(
+				categoriesModel,
+				category,
+			)
 		}
-
-		err = r.DB.Where("book_id = ?", bookTables[i].ID).Find(&descriptionTables).Error
+		err = r.DB.Where("book_id = ?", bookTable[i].ID).Find(&descriptionsTable).Error
 		if err != nil {
 			return nil, err
 		}
-		bookTables[i].Description = descriptionTables
-		for i := range descriptionTables {
-			descriptionModel.Fill(
-				descriptionTables[i].ID,
-				descriptionTables[i].BookId,
-				descriptionTables[i].Description,
-				descriptionTables[i].CreatedAt,
-				descriptionTables[i].UpdatedAt,
-			)
-			bookModel.Descriptions = append(
-				bookModel.Descriptions,
-				descriptionModel)
+		if len(descriptionsTable) != 0 {
+			for i := range descriptionsTable {
+				description := model.Description{}
+				description.Fill(
+					descriptionsTable[i].ID,
+					descriptionsTable[i].BookId,
+					descriptionsTable[i].Description,
+					descriptionsTable[i].CreatedAt,
+					descriptionsTable[i].UpdatedAt,
+				)
+				descriptionsModel = append(
+					descriptionsModel,
+					description,
+				)
+			}
 		}
-		bookModels = append(bookModels, bookModel)
+
+		book := model.Book{}
+
+		book.Fill(
+			bookTable[i].ID,
+			bookTable[i].Title,
+			authorModel,
+			bookTable[i].PublishedAt,
+			nil, //TODO あとでテーブルにからむつくる
+			account.ID,
+			bookTable[i].StartAt,
+			bookTable[i].EndAt,
+			bookTable[i].NextBookID,
+			bookTable[i].PrevBookID,
+			descriptionsModel,
+			categoriesModel,
+			bookTable[i].CreatedAt,
+			bookTable[i].UpdatedAt,
+		)
+		books = append(books, book)
 	}
-	return &bookModels, err
+	return &books, nil
 }
 
 func isIncludeCategory(a int64, list []int64) bool {
@@ -203,7 +254,7 @@ func (r *bookRepository) FindBook(id int64, account model.Account) (*model.Book,
 	authorTable := []tables.Author{}
 	categoriesTable := []tables.Category{}
 	descriptionsTable := []tables.Description{}
-	authorModel := model.Author{}
+	authorModel := &model.Author{}
 	categoriesModel := []model.Category{}
 	descriptionsModel := []model.Description{}
 
@@ -230,7 +281,7 @@ func (r *bookRepository) FindBook(id int64, account model.Account) (*model.Book,
 			authorTable[0].UpdatedAt,
 		)
 	} else {
-		authorModel = model.Author{}
+		authorModel = nil
 	}
 
 	err = r.DB.Joins("JOIN books_categories ON books_categories.category_id = categories.id").
@@ -280,7 +331,7 @@ func (r *bookRepository) FindBook(id int64, account model.Account) (*model.Book,
 	book.Fill(
 		bookTable[0].ID,
 		bookTable[0].Title,
-		&authorModel,
+		authorModel,
 		bookTable[0].PublishedAt,
 		nil, //TODO あとでテーブルにからむつくる
 		account.ID,
@@ -293,6 +344,7 @@ func (r *bookRepository) FindBook(id int64, account model.Account) (*model.Book,
 		bookTable[0].CreatedAt,
 		bookTable[0].UpdatedAt,
 	)
+
 	return &book, nil
 }
 

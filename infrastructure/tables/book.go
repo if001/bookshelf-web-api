@@ -5,6 +5,7 @@ import (
 	"bookshelf-web-api/domain/service"
 	"database/sql"
 	"github.com/go-sql-driver/mysql"
+	"time"
 )
 
 type Book struct {
@@ -36,4 +37,30 @@ func (b *Book) BindFromModel(book model.Book) {
 	b.EndAt = service.NullTime{NullTime: mysql.NullTime{Valid: false}}
 	b.NextBookID = book.NextBookID
 	b.PrevBookID = book.PrevBookID
+}
+
+type Book2 struct {
+	ID                   int64
+	AccountID            int64
+	Title                string    `gorm:"type:varchar(40);"`
+	AuthorID             sql.NullInt64
+	StartAt              service.NullTime
+	EndAt                service.NullTime
+	PublishedAt          service.NullTime
+	NextBookID           service.NullInt64
+	PrevBookID           service.NullInt64
+	CreatedAt            time.Time `gorm;"default:CURRENT_TIMESTAMP" sql:"not null;type:date"`
+	UpdatedAt            time.Time `gorm;"default:CURRENT_TIMESTAMP" sql:"not null;type:date"`
+	AuthorName           string
+	CategoryName         string
+	Description          string
+	DescriptionCreatedAt time.Time
+	Author               Author
+}
+
+type SimpleBook struct {
+	BaseModel
+	AccountID   int64
+	Title       string `gorm:"type:varchar(40);"`
+	AuthorName  sql.NullString
 }

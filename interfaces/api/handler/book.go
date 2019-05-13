@@ -6,6 +6,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"strconv"
+	"bookshelf-web-api/application/usecase/form"
 )
 
 type BookHandler interface {
@@ -41,7 +42,14 @@ func (b *bookHandler) GetBooks(w http.ResponseWriter, r *http.Request, _ httprou
 		ErrorHandler(err, w ,r)
 		return
 	}
-	err = json.NewEncoder(w).Encode(Response{resultCode:200, Content:books})
+	bookResponse := []form.BookResponse{}
+	for i := range *books {
+		bookResponse = append(
+			bookResponse,
+			*b.BookUseCase.ModelToResponse((*books)[i]),
+		)
+	}
+	err = json.NewEncoder(w).Encode(Response{resultCode:200, Content:bookResponse})
 	if err != nil {
 		ErrorHandler(err, w ,r)
 		return

@@ -37,7 +37,7 @@ func NewBookUseCase(bookR repository.BookRepository, authorR repository.AuthorRe
 }
 
 func (u *bookUseCase) BookListUseCase(account model.Account) (*[]model.Book, error) {
-	books, err := u.BookR.GetBooks(account.ID)
+	books, err := u.BookR.GetBooks(account)
 	if err != nil {
 		return nil, err
 	}
