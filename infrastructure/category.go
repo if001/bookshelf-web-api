@@ -17,9 +17,12 @@ func NewCategoryRepository(db *gorm.DB) repository.CategoryRepository {
 	return &categoryRepository{ DB : db }
 }
 
-func (r *categoryRepository) Get() (*model.Category, service.RecodeNotFoundError) {
-	var category model.Category
-	var err  = r.DB.Find(&category).Error
+func (r *categoryRepository) GetCategories() (*[]model.Category, service.RecodeNotFoundError) {
+	var category []model.Category
+	 err  := r.DB.Find(&category).Error
+	if err != nil {
+		return nil, err
+	}
 	return &category, err
 }
 

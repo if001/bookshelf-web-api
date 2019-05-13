@@ -29,7 +29,7 @@ func Route(h handler.ApiHandler) http.Handler {
 	//router.DELETE("/description/:description", middlewares.Then(h.UpdateDescription))
 
 	//// router.GET("/author", middlewares.Then(h.FindBook))
-	//// router.GET("/categories", middlewares.Then(h.GetCategories))
+	router.GET("/categories", middlewares.Then(h.CategoryList))
 
 	return  router
 }

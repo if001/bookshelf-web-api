@@ -6,7 +6,7 @@ import (
 )
 
 type CategoryRepository interface {
-	Get() (*model.Category, service.RecodeNotFoundError)
+	GetCategories() (*[]model.Category, service.RecodeNotFoundError)
 	GetByIds(categoryIds []int64) (*[]model.Category, service.RecodeNotFoundError)
 	GetByBookId(bookId int64) (*[]model.Category, error)
 	GetNotExistCategories(categories []model.Category) (*[]model.Category, error)

@@ -6,7 +6,7 @@ import (
 )
 
 type CategoryUseCase interface {
-	CategoryUseCase() (*model.Category, error)
+	CategoryUseCase() (*[]model.Category, error)
 }
 
 type categoryUseCase struct {
@@ -19,7 +19,7 @@ func NewCategoryUseCase(cr repository.CategoryRepository) CategoryUseCase {
 	}
 }
 
-func (u *categoryUseCase) CategoryUseCase() (*model.Category, error) {
-	cate, err := u.CategoryRepo.Get()
-	return cate, err
+func (u *categoryUseCase) CategoryUseCase() (*[]model.Category, error) {
+	categories, err := u.CategoryRepo.GetCategories()
+	return categories, err
 }
