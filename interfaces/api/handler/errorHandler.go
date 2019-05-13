@@ -6,30 +6,29 @@ import (
 	"net/http"
 )
 
-func BadRequestHandler(err interface{}, w http.ResponseWriter, r *http.Request) {
-	http.Error(w, http.StatusText(http.StatusBadRequest), http.StatusBadRequest)
-	log.Println(http.StatusText(http.StatusBadGateway), err, r)
+func BadRequestHandler(err *service.BadRequest, w http.ResponseWriter, r *http.Request) {
+	http.Error(w, err.Error(), err.Code)
+	log.Println(err, r)
 }
-func InternalServerErrorHandler(err interface{}, w http.ResponseWriter, r *http.Request) {
-	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
-	log.Println(http.StatusText(http.StatusInternalServerError), err, r)
+func InternalServerErrorHandler(err *service.InternalServerError, w http.ResponseWriter, r *http.Request) {
+	http.Error(w, err.Error(), err.Code)
+	log.Println(err, r)
+}
+func RecodeNotFoundErrorHandler(err *service.RecodeNotFoundError, w http.ResponseWriter, r *http.Request) {
+	http.Error(w, err.Error(), err.Code)
+	log.Println(err, r)
 }
 
-func RecodeNotFoundErrorHandler(err interface{}, w http.ResponseWriter, r *http.Request) {
-	http.Error(w, http.StatusText(http.StatusNotFound), http.StatusNotFound)
-	log.Println(http.StatusText(http.StatusNotFound), err, r)
-}
 
-func ErrorHandler(err interface{},w http.ResponseWriter, r *http.Request) {
-	// TODO 型で分岐じゃなくてinterfaceで分岐に変える
-	switch err.(type) {
-	case service.BadRequest:
+func ErrorHandler(err error,w http.ResponseWriter, r *http.Request) {
+	switch err := err.(type) {
+	case *service.BadRequest:
 		BadRequestHandler(err, w, r)
-	case service.InternalServerError:
+	case *service.InternalServerError:
 		InternalServerErrorHandler(err, w, r)
-	case service.RecodeNotFoundError:
+	case *service.RecodeNotFoundError:
 		RecodeNotFoundErrorHandler(err, w, r)
 	default:
-		InternalServerErrorHandler(err, w, r)
+		http.Error(w, "Not Found", 400)
 	}
 }

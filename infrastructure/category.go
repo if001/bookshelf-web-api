@@ -17,16 +17,16 @@ func NewCategoryRepository(db *gorm.DB) repository.CategoryRepository {
 	return &categoryRepository{ DB : db }
 }
 
-func (r *categoryRepository) GetCategories() (*[]model.Category, service.RecodeNotFoundError) {
+func (r *categoryRepository) GetCategories() (*[]model.Category, error) {
 	var category []model.Category
 	 err  := r.DB.Find(&category).Error
 	if err != nil {
-		return nil, err
+		return nil, service.NewBadRequest()
 	}
-	return &category, err
+	return &category, nil
 }
 
-func (r *categoryRepository) GetByIds(categoriesId []int64) (*[]model.Category, service.RecodeNotFoundError) {
+func (r *categoryRepository) GetByIds(categoriesId []int64) (*[]model.Category, error) {
 	var categories []model.Category
 	err := r.DB.Find(&categories, "id IN (?)", categoriesId).Error
 	if err != nil {
