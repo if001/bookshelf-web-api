@@ -7,18 +7,19 @@ import (
 
 type Book struct {
 	Base
-	Name string
-	Author *Author
-	PublishedAt service.NullTime
-	Publisher *Publisher
-	AccountId int64
-	StartAt service.NullTime
-	EndAt service.NullTime
-	NextBookID  int64
-	PrevBookID  int64
+	Name         string
+	Author       *Author
+	PublishedAt  service.NullTime
+	Publisher    *Publisher
+	AccountId    int64
+	StartAt      service.NullTime
+	EndAt        service.NullTime
+	NextBookID   int64
+	PrevBookID   int64
 	Descriptions []Description
-	Categories []Category
+	Categories   []Category
 }
+
 func (b *Book) GetReadState() ReadState {
 	if b.StartAt.Valid && b.EndAt.Valid {
 		return ReadValue
@@ -53,11 +54,11 @@ func (b *Book) Fill(id int64, name string, author *Author,
 	b.UpdatedAt = updatedAt
 }
 
-
 type Category struct {
 	Base
 	Name string
 }
+
 func (a *Category) Fill(id int64, name string, createdAt time.Time, updatedAt time.Time) {
 	a.ID = id
 	a.Name = name
@@ -69,6 +70,7 @@ type Author struct {
 	Base
 	Name string
 }
+
 func (a *Author) Fill(id int64, name string, createdAt time.Time, updatedAt time.Time) {
 	a.ID = id
 	a.Name = name
@@ -81,6 +83,7 @@ type Description struct {
 	BookId  int64
 	Content string
 }
+
 func (a *Description) Fill(id int64, bookId int64, content string, createdAt time.Time, updatedAt time.Time) {
 	a.ID = id
 	a.Content = content
@@ -88,6 +91,7 @@ func (a *Description) Fill(id int64, bookId int64, content string, createdAt tim
 	a.CreatedAt = createdAt
 	a.UpdatedAt = updatedAt
 }
+
 type Publisher struct {
 	Base
 	Name string

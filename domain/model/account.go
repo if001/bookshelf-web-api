@@ -9,7 +9,7 @@ type Account struct {
 
 type Admin struct {
 	Account
-	Category []Category
-	Author []Author
+	Category    []Category
+	Author      []Author
 	Description []Description
 }

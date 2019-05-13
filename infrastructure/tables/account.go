@@ -1,6 +1,5 @@
 package tables
 
-
 type Account struct {
 	BaseModel
 	UUID string `gorm:"type:varchar(40);"`
