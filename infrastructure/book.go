@@ -181,8 +181,8 @@ func (r *bookRepository) CreateBook(book model.Book, account model.Account) (res
 	bookTable.PublishedAt = service.NullTime{NullTime:mysql.NullTime{Valid:false }}
 	bookTable.StartAt = service.NullTime{NullTime:mysql.NullTime{Valid:false }}
 	bookTable.EndAt = service.NullTime{NullTime:mysql.NullTime{Valid:false }}
-	bookTable.NextBookID = sql.NullInt64{Int64:book.NextBookID, Valid:book.NextBookID != 0}
-	bookTable.PrevBookID = sql.NullInt64{Int64:book.PrevBookID, Valid:book.PrevBookID != 0}
+	bookTable.NextBookID = book.NextBookID
+	bookTable.PrevBookID = book.PrevBookID
 
 	err = tx.Create(&bookTable).Error
 	if err != nil {
@@ -286,8 +286,8 @@ func (r *bookRepository) FindBook(id int64, account model.Account) (*model.Book,
 		account.ID,
 		bookTable[0].StartAt,
 		bookTable[0].EndAt,
-		bookTable[0].NextBookID.Int64,
-		bookTable[0].PrevBookID.Int64,
+		bookTable[0].NextBookID,
+		bookTable[0].PrevBookID,
 		descriptionsModel,
 		categoriesModel,
 		bookTable[0].CreatedAt,
@@ -337,8 +337,8 @@ func (r *bookRepository) UpdateBook(book model.Book, account model.Account) (res
 	bookTable[0].AuthorID = authorId
 	bookTable[0].StartAt = service.NullTime{NullTime:mysql.NullTime{Valid:false }}
 	bookTable[0].EndAt = service.NullTime{NullTime:mysql.NullTime{Valid:false }}
-	bookTable[0].NextBookID = sql.NullInt64{Int64:book.NextBookID, Valid:book.NextBookID != 0}
-	bookTable[0].PrevBookID = sql.NullInt64{Int64:book.PrevBookID, Valid:book.PrevBookID != 0}
+	bookTable[0].NextBookID = book.NextBookID
+	bookTable[0].PrevBookID = book.PrevBookID
 
 	err = tx.Save(&bookTable[0]).Error
 	if err != nil {

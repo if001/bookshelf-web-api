@@ -7,7 +7,6 @@ import (
 	"io"
 	"bookshelf-web-api/application/usecase/form"
 	"errors"
-	"database/sql"
 	"bookshelf-web-api/domain/service"
 )
 
@@ -74,8 +73,9 @@ func (u *bookUseCase) BookRequestBind(body io.ReadCloser) (*model.Book, error) {
 	}
 	book.Author = author
 
-	book.NextBookID = bookRequest.NextBookId
-	book.PrevBookID = bookRequest.PrevBookId
+
+	book.NextBookID = service.NewNullInt(bookRequest.NextBookId)
+	book.PrevBookID = service.NewNullInt(bookRequest.PrevBookId)
 	categories,err := u.CategoryR.GetByIds(bookRequest.CategoryIds)
 	if err != nil {
 		return nil, err
@@ -193,8 +193,8 @@ func (u *bookUseCase) ModelToResponse(book model.Book) (*form.BookResponse) {
 	response.StartAt = book.StartAt
 	response.EndAt = book.EndAt
 
-	response.PrevBookID = service.NullInt64{NullInt64: sql.NullInt64{Int64:book.PrevBookID, Valid:book.PrevBookID != 0}}
-	response.NextBookID = service.NullInt64{NullInt64: sql.NullInt64{Int64:book.NextBookID, Valid:book.NextBookID != 0}}
+	response.PrevBookID = book.PrevBookID
+	response.NextBookID = book.NextBookID
 
 	for i := range book.Categories {
 		c := form.CategoryResponse{}

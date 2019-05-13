@@ -8,14 +8,14 @@ import (
 type Book struct {
 	Base
 	Name         string
+	AccountId    int64
 	Author       *Author
 	PublishedAt  service.NullTime
 	Publisher    *Publisher
-	AccountId    int64
 	StartAt      service.NullTime
 	EndAt        service.NullTime
-	NextBookID   int64
-	PrevBookID   int64
+	NextBookID   service.NullInt64
+	PrevBookID   service.NullInt64
 	Descriptions []Description
 	Categories   []Category
 }
@@ -35,7 +35,7 @@ func (b *Book) GetReadState() ReadState {
 func (b *Book) Fill(id int64, name string, author *Author,
 	publishAt service.NullTime, publisher *Publisher,
 	accountId int64, startAt service.NullTime, endAt service.NullTime,
-	nextBookId int64, prevBookId int64, descriptions []Description, categories []Category,
+	nextBookId service.NullInt64, prevBookId service.NullInt64, descriptions []Description, categories []Category,
 	createdAt time.Time, updatedAt time.Time) {
 	b.ID = id
 	b.Name = name

@@ -15,8 +15,8 @@ type Book struct {
 	StartAt     service.NullTime
 	EndAt       service.NullTime
 	PublishedAt service.NullTime
-	NextBookID  sql.NullInt64
-	PrevBookID  sql.NullInt64
+	NextBookID  service.NullInt64
+	PrevBookID  service.NullInt64
 	Author      Author `gorm:"foreignkey:AuthorID"`
 	Categories  []Category
 	Description []Description
@@ -34,6 +34,6 @@ func (b *Book) BindFromModel(book model.Book) {
 	b.PublishedAt = service.NullTime{NullTime: mysql.NullTime{Valid: false}}
 	b.StartAt = service.NullTime{NullTime: mysql.NullTime{Valid: false}}
 	b.EndAt = service.NullTime{NullTime: mysql.NullTime{Valid: false}}
-	b.NextBookID = sql.NullInt64{Int64: book.NextBookID, Valid: book.NextBookID != 0}
-	b.PrevBookID = sql.NullInt64{Int64: book.PrevBookID, Valid: book.PrevBookID != 0}
+	b.NextBookID = book.NextBookID
+	b.PrevBookID = book.PrevBookID
 }

@@ -12,6 +12,9 @@ var nullLiteral = []byte("null")
 type NullInt64 struct {
 	sql.NullInt64
 }
+func NewNullInt(ni int64) NullInt64 {
+	return NullInt64{NullInt64:sql.NullInt64{ni, ni != 0}}
+}
 func (i NullInt64) MarshalJSON() ([]byte, error) {
 	if i.Valid {
 		return json.Marshal(i.Int64)
