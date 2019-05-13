@@ -7,7 +7,7 @@ import (
 )
 
 func BadRequestHandler(err *service.BadRequest, w http.ResponseWriter, r *http.Request) {
-	http.Error(w, err.Error(), err.Code)
+	http.Error(w, err.Error()+err.Message, err.Code)
 	log.Println(err, r)
 }
 func InternalServerErrorHandler(err *service.InternalServerError, w http.ResponseWriter, r *http.Request) {
