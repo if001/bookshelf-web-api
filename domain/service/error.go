@@ -1,35 +1,27 @@
 package service
 
-import "net/http"
-
 type BadRequest struct {
-	Code int
 	Message string
 }
 func (err *BadRequest) Error() string { return err.Message }
-func NewBadRequest() *BadRequest {
-	code := http.StatusBadRequest
-	return &BadRequest{code, http.StatusText(code)}
+func NewBadRequest(err error) *BadRequest {
+	return &BadRequest{err.Error()}
 }
 
 
 type InternalServerError struct {
-	Code int
 	Message string
 }
 func (err *InternalServerError) Error() string { return err.Message }
-func NewInternalServerError() *InternalServerError {
-	code := http.StatusInternalServerError
-	return &InternalServerError{code, http.StatusText(code)}
+func NewInternalServerError(err error) *InternalServerError {
+	return &InternalServerError{err.Error()}
 }
 
 
 type RecodeNotFoundError struct {
-	Code int
 	Message string
 }
 func (err *RecodeNotFoundError) Error() string { return err.Message }
-func NewRecodeNotFoundError() *RecodeNotFoundError {
-	code := http.StatusNotFound
-	return &RecodeNotFoundError{code, "Record Not Found"}
+func NewRecodeNotFoundError(err error) *RecodeNotFoundError {
+	return &RecodeNotFoundError{err.Error()}
 }

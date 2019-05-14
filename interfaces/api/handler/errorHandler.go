@@ -7,20 +7,23 @@ import (
 )
 
 func BadRequestHandler(err *service.BadRequest, w http.ResponseWriter, r *http.Request) {
-	http.Error(w, err.Error()+err.Message, err.Code)
+	code := http.StatusBadRequest
+	http.Error(w, http.StatusText(code), code)
 	log.Println(err, r)
 }
 func InternalServerErrorHandler(err *service.InternalServerError, w http.ResponseWriter, r *http.Request) {
-	http.Error(w, err.Error(), err.Code)
+	code := http.StatusInternalServerError
+	http.Error(w, http.StatusText(code), code)
 	log.Println(err, r)
 }
 func RecodeNotFoundErrorHandler(err *service.RecodeNotFoundError, w http.ResponseWriter, r *http.Request) {
-	http.Error(w, err.Error(), err.Code)
+	code := http.StatusNotFound
+	http.Error(w, http.StatusText(code), code)
 	log.Println(err, r)
 }
 
 
-func ErrorHandler(err error,w http.ResponseWriter, r *http.Request) {
+func ErrorHandler(err error, w http.ResponseWriter, r *http.Request) {
 	switch err := err.(type) {
 	case *service.BadRequest:
 		BadRequestHandler(err, w, r)
