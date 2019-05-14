@@ -9,10 +9,12 @@ import (
 	"bookshelf-web-api/application/usecase"
 	"bookshelf-web-api/infrastructure"
 	"bookshelf-web-api/infrastructure/mysql"
+	"strconv"
+	"os"
 )
 
 func main() {
-	var addr =  ":8181"
+	port, _ := strconv.Atoi(os.Args[1])
 
 	db := mysql.GetDBConn()
 
@@ -37,9 +39,9 @@ func main() {
 
 	r := router.Route(api)
 
-	fmt.Printf("[START] server. port: %s\n", addr)
+	fmt.Printf("[START] server. port: %d\n", port)
 
-	if err := http.ListenAndServe(addr, handler.Log(r)); err != nil {
+	if err := http.ListenAndServe(fmt.Sprintf(":%d", port), handler.Log(r)); err != nil {
 		panic(fmt.Errorf("[FAILED] start sever. err: %v", err))
 	}
 }
