@@ -1,0 +1,34 @@
+{
+	"ImportPath": "bookshelf-web-api",
+	"GoVersion": "go1.12",
+	"GodepVersion": "v80",
+	"Packages": [
+		"./cmd/api/"
+	],
+	"Deps": [
+		{
+			"ImportPath": "github.com/go-sql-driver/mysql",
+			"Comment": "v1.4.0-29-g8056f2c",
+			"Rev": "8056f2ca4aa7be2e2e10ab01426a630d5a5bfa81"
+		},
+		{
+			"ImportPath": "github.com/jinzhu/gorm",
+			"Comment": "v1.9.7",
+			"Rev": "5c0f6716ad1e3a6b6a8afa56afeff747032a6926"
+		},
+		{
+			"ImportPath": "github.com/jinzhu/gorm/dialects/mysql",
+			"Comment": "v1.9.7",
+			"Rev": "5c0f6716ad1e3a6b6a8afa56afeff747032a6926"
+		},
+		{
+			"ImportPath": "github.com/jinzhu/inflection",
+			"Rev": "04140366298a54a039076d798123ffa108fff46c"
+		},
+		{
+			"ImportPath": "github.com/julienschmidt/httprouter",
+			"Comment": "v1.2.0-2-g26a0597",
+			"Rev": "26a05976f9bf5c3aa992cc20e8588c359418ee58"
+		}
+	]
+}
