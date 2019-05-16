@@ -9,13 +9,22 @@ import (
 	"bookshelf-web-api/application/usecase"
 	"bookshelf-web-api/infrastructure"
 	"bookshelf-web-api/infrastructure/mysql"
-	"strconv"
 	"os"
+	"strconv"
 )
 
 func main() {
-	port, _ := strconv.Atoi(os.Args[1])
+	port := 8181
+	var err error
 
+	if len(os.Args) == 2 {
+		port, err = strconv.Atoi(os.Args[1])
+		if err != nil {
+			fmt.Println("invalid argument")
+			panic(err)
+		}
+	}
+	
 	db := mysql.GetDBConn()
 
 	cr := infrastructure.NewCategoryRepository(db)
@@ -41,7 +50,7 @@ func main() {
 
 	fmt.Printf("[START] server. port: %d\n", port)
 
-	if err := http.ListenAndServe(fmt.Sprintf(":%d", port), handler.Log(r)); err != nil {
+	if err = http.ListenAndServe(fmt.Sprintf(":%d", port), handler.Log(r)); err != nil {
 		panic(fmt.Errorf("[FAILED] start sever. err: %v", err))
 	}
 }
