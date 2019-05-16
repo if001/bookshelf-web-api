@@ -1,1 +1,1 @@
- web: bookshelf-web-api
+web: $(basename `pwd`) $PORT
