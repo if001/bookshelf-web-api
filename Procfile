@@ -1,1 +1,1 @@
-web: cmd/api/main $PORT
+web: cmd/api/bookshelf-web-api $PORT
