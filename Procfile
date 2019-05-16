@@ -1,1 +1,1 @@
- 'web: demoapp'
+ web: bookshelf-web-api
