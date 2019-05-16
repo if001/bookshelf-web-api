@@ -1,1 +1,1 @@
-web: cmd/api/bookshelf-web-api $PORT
+web: vendor/bin/bookshelf-web-api $PORT
