@@ -3,9 +3,9 @@ package infrastructure
 import (
 	"bookshelf-web-api/domain/model"
 	"bookshelf-web-api/domain/repository"
-	"bookshelf-web-api/domain/service"
 	"bookshelf-web-api/infrastructure/tables"
 	"github.com/jinzhu/gorm"
+	"errors"
 )
 
 type categoryRepository struct {
@@ -32,7 +32,7 @@ func (r *categoryRepository) GetByIds(categoriesId []int64) (*[]model.Category, 
 		return nil, err
 	}
 	if len(categories) == 0 {
-		return nil, service.NewRecodeNotFoundError()
+		return nil, errors.New("record not found")
 	}
 	return &categories, nil
 }
@@ -92,7 +92,7 @@ func  (r *categoryRepository) LogicalDelete(bookId int64, categoryId int64)  (er
 		return err
 	}
 	if len(bookCategory) == 0 {
-		return service.NewRecodeNotFoundError()
+		return errors.New("record not found")
 	}
 	bookCategory[0].Status = pFalse
 
