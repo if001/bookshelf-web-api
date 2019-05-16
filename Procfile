@@ -1,1 +1,1 @@
-web: bin/api $PORT
+web: bookshelf-web-api $PORT
