@@ -1,1 +1,1 @@
-web: $(basename `pwd`) $PORT
+web: cmd/api/main $PORT
