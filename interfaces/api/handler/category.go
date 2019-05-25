@@ -9,14 +9,13 @@ import (
 )
 
 type Response struct {
-	resultCode uint
-	Content interface{}
+	resultCode uint        `json:"result_code"`
+	Content    interface{} `json:"content"`
 }
 
-
 type CategoryHandler interface {
-	CategoryList(w http.ResponseWriter, r *http.Request,_ httprouter.Params)
-	CategoryLogicalDelete(w http.ResponseWriter, r *http.Request,_ httprouter.Params)
+	CategoryList(w http.ResponseWriter, r *http.Request, _ httprouter.Params)
+	CategoryLogicalDelete(w http.ResponseWriter, r *http.Request, _ httprouter.Params)
 }
 
 type categoryHandler struct {
@@ -35,20 +34,20 @@ func (u *categoryHandler) CategoryList(w http.ResponseWriter, r *http.Request, _
 		ErrorHandler(err, w, r)
 		return
 	}
-	err = json.NewEncoder(w).Encode(Response{resultCode:200, Content:category})
+	err = json.NewEncoder(w).Encode(Response{resultCode: 200, Content: category})
 	if err != nil {
 		ErrorHandler(err, w, r)
 		return
 	}
 }
 
-func (u *categoryHandler) CategoryLogicalDelete(w http.ResponseWriter, r *http.Request,ps httprouter.Params) {
-	bookId,err := strconv.ParseInt(ps.ByName("book"),10,64)
+func (u *categoryHandler) CategoryLogicalDelete(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	bookId, err := strconv.ParseInt(ps.ByName("book"), 10, 64)
 	if err != nil {
 		ErrorHandler(err, w, r)
 		return
 	}
-	categoryId,err := strconv.ParseInt(ps.ByName("category"),10,64)
+	categoryId, err := strconv.ParseInt(ps.ByName("category"), 10, 64)
 	if err != nil {
 		ErrorHandler(err, w, r)
 		return
