@@ -38,18 +38,18 @@ type BookResponse struct {
 }
 
 type AuthorResponse struct {
-	ID   int64
-	Name string
+	ID   int64  `json:"id"`
+	Name string `json:"name"`
 }
 type DescriptionResponse struct {
-	ID      int64
-	Content string
+	ID      int64  `json:"id"`
+	Content string `json:"content"`
 }
 type CategoryResponse struct {
-	ID   int64
-	Name string
+	ID   int64  `json:"id"`
+	Name string `json:"name"`
 }
 type PublisherResponse struct {
-	ID   int64
-	Name string
+	ID   int64  `json:"id"`
+	Name string `json:"name"`
 }
