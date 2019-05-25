@@ -7,11 +7,14 @@ import (
 	"net/http"
 )
 
-
+func index(w http.ResponseWriter, r *http.Request, ps httprouter.Params) {
+	return
+}
 func Route(h handler.ApiHandler) http.Handler {
-	middlewares := middleware.NewMws(h.AuthMiddleware)
+	middlewares := middleware.NewMws(h.AuthMiddleware, middleware.CorsMiddleware)
 
 	router := httprouter.New()
+	// router.OPTIONS("/*", index)
 
 	router.GET("/books", middlewares.Then(h.GetBooks))
 	router.POST("/books", middlewares.Then(h.CreateBook))
